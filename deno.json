@@ -7,7 +7,7 @@
     "fmt": "deno fmt"
   },
   "imports": {
-    "$fresh/": "https://deno.land/x/fresh@1.7.3/",
+    "$fresh/": "https://deno.land/x/fresh@2.2.0/",
     "preact": "https://esm.sh/preact@10.28.2",
     "preact/": "https://esm.sh/preact@10.28.2/",
     "preact/hooks": "https://esm.sh/preact@10.28.2/hooks",

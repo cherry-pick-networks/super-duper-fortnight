@@ -30,6 +30,17 @@ export default function Home() {
       </section>
 
       <section class="card">
+        <h2>Learning Domain</h2>
+        <p class="muted">
+          Start with the mobile-first quiz flow, then expand the rest of the
+          learning experience.
+        </p>
+        <a class="text-link" href="/learning">
+          Go to Learning
+        </a>
+      </section>
+
+      <section class="card">
         <h2>다음 단계</h2>
         <ul class="list">
           <li>WharfKit 체인/지갑 설정 추가</li>

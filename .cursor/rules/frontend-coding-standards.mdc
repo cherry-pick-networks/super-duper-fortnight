@@ -13,7 +13,12 @@ alwaysApply: true
 ## Style
 - TypeScript-only, use explicit types for public APIs and props.
 - English-only code, comments, docs, commits.
+- Code comments must be written in English only.
 - Keep files small and focused; one component per file.
+
+## Conventions
+- Follow Google JavaScript Style Guide for TypeScript/JS.
+- Prefer No CSS Club principles for styling: keep CSS minimal, readable, and dependency-free.
 
 ## Architecture
 - Fresh: keep routes thin; place UI logic in components or islands.
@@ -34,6 +39,9 @@ alwaysApply: true
 - Load WharfKit only inside islands.
 - Keep chain config in a single module (e.g., `lib/wharfkit/`).
 - Never log or persist sensitive wallet data.
+
+## CSS
+- Use vanilla CSS only; do not use Tailwind or other utility CSS frameworks.
 
 ## Examples
 ```tsx
