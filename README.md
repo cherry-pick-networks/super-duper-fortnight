@@ -13,7 +13,7 @@ WharfKit을 통해 블록체인 생태계(지갑 연결, 트랜잭션 서명)를
 1. Deno 최신 버전 설치
 2. 개발 서버 실행
    ```bash
-   deno task start
+   deno task dev
    ```
 3. 브라우저에서 `http://127.0.0.1:8001` 접속
 

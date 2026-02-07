@@ -1,4 +1,4 @@
-import { PageProps } from "$fresh/server.ts";
+import { PageProps } from "fresh";
 
 export default function App({ Component }: PageProps) {
   return (
@@ -7,7 +7,6 @@ export default function App({ Component }: PageProps) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Picker Frontend</title>
-        <link rel="stylesheet" href="/styles.css" />
       </head>
       <body>
         <Component />

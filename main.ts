@@ -1,5 +1,9 @@
-import { start } from "$fresh/server.ts";
-import manifest from "./fresh.gen.ts";
-import config from "./fresh.config.ts";
+import { App, staticFiles } from "fresh";
 
-await start(manifest, config);
+export const app = new App({ root: import.meta.url })
+  .use(staticFiles())
+  .fsRoutes();
+
+if (import.meta.main) {
+  await app.listen();
+}
