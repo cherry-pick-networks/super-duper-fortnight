@@ -1,0 +1,45 @@
+---
+description: Frontend coding standards for Picker (Fresh/Preact)
+alwaysApply: true
+---
+
+# Picker Frontend Rules
+
+## Naming
+- Prefer single-word base form; verbs for functions, singular nouns for data.
+- Avoid abbreviations unless widely accepted (e.g., auth, api, ui).
+- Collections: use singular name + _list/_map (e.g., course_list).
+
+## Style
+- TypeScript-only, use explicit types for public APIs and props.
+- English-only code, comments, docs, commits.
+- Keep files small and focused; one component per file.
+
+## Architecture
+- Fresh: keep routes thin; place UI logic in components or islands.
+- Islands: only for interactivity; avoid unnecessary client JS.
+- Shared UI goes in `components/`, interactive pieces in `islands/`.
+
+## Data & API
+- Centralize API calls in `lib/api/` and reuse typed clients.
+- Validate and normalize external data at the boundary.
+- Prefer `fetch` wrappers with typed response parsing.
+
+## State & Effects
+- Use `@preact/signals` for local UI state.
+- Avoid global state unless required; document cross-route state.
+- Handle async errors explicitly; surface user-friendly messages.
+
+## WharfKit
+- Load WharfKit only inside islands.
+- Keep chain config in a single module (e.g., `lib/wharfkit/`).
+- Never log or persist sensitive wallet data.
+
+## Examples
+```tsx
+// ✅ GOOD
+type CourseCardProps = { course_id: string };
+
+// ❌ BAD
+type CourseCardProps = { cid: string };
+```

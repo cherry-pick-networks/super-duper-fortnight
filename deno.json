@@ -1,0 +1,21 @@
+{
+  "tasks": {
+    "start": "deno run -A --watch=static/,routes/,islands/,components/ dev.ts",
+    "build": "deno run -A dev.ts build",
+    "preview": "deno run -A dev.ts preview",
+    "lint": "deno lint",
+    "fmt": "deno fmt"
+  },
+  "imports": {
+    "$fresh/": "https://deno.land/x/fresh@1.7.3/",
+    "preact": "https://esm.sh/preact@10.28.2",
+    "preact/": "https://esm.sh/preact@10.28.2/",
+    "preact/hooks": "https://esm.sh/preact@10.28.2/hooks",
+    "@preact/signals": "https://esm.sh/@preact/signals@2.5.1",
+    "@wharfkit/session": "https://esm.sh/@wharfkit/session@1.6.1"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  }
+}
