@@ -1,8 +1,8 @@
 {
   "tasks": {
-    "start": "vite",
-    "dev": "vite",
-    "build": "vite build",
+    "start": "deno run -A npm:vite@6.1.0",
+    "dev": "deno run -A npm:vite@6.1.0",
+    "build": "deno run -A npm:vite@6.1.0 build",
     "preview": "deno serve -A _fresh/server.js --port 8001",
     "lint": "deno lint",
     "fmt": "deno fmt"
@@ -10,7 +10,7 @@
   "imports": {
     "fresh": "jsr:@fresh/core@2.2.0",
     "@fresh/plugin-vite": "jsr:@fresh/plugin-vite@1.0.8",
-    "vite": "npm:vite@5.4.11",
+    "vite": "npm:vite@6.1.0",
     "preact": "https://esm.sh/preact@10.28.2",
     "preact/": "https://esm.sh/preact@10.28.2/",
     "preact/hooks": "https://esm.sh/preact@10.28.2/hooks",
