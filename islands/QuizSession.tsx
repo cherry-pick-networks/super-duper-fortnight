@@ -10,7 +10,91 @@ import {
 
 type QuizStep = "loading" | "answering" | "checked" | "finished" | "error";
 
+type GrammarChoicePart = {
+  text: string;
+  isBold?: boolean;
+};
+
+type GrammarChoice = {
+  parts: GrammarChoicePart[];
+  isCorrect: boolean;
+};
+
+type GrammarQuizItem = {
+  leadingSentences: string[];
+  choices: [GrammarChoice, GrammarChoice];
+  trailingSentences: string[];
+};
+
 const sessionSize = 5;
+const grammarItems: GrammarQuizItem[] = [
+  {
+    leadingSentences: ["She ____ to the office every day."],
+    choices: [
+      {
+        parts: [
+          { text: "She " },
+          { text: "goes", isBold: true },
+          { text: " to the office every day." },
+        ],
+        isCorrect: true,
+      },
+      {
+        parts: [
+          { text: "She " },
+          { text: "go", isBold: true },
+          { text: " to the office every day." },
+        ],
+        isCorrect: false,
+      },
+    ],
+    trailingSentences: ["Her schedule is consistent throughout the week."],
+  },
+  {
+    leadingSentences: ["If he ____ earlier, he would have caught the train."],
+    choices: [
+      {
+        parts: [
+          { text: "If he " },
+          { text: "had left", isBold: true },
+          { text: " earlier, he would have caught the train." },
+        ],
+        isCorrect: true,
+      },
+      {
+        parts: [
+          { text: "If he " },
+          { text: "left", isBold: true },
+          { text: " earlier, he would have caught the train." },
+        ],
+        isCorrect: false,
+      },
+    ],
+    trailingSentences: ["He missed it by a few minutes."],
+  },
+  {
+    leadingSentences: ["The report ____ on your desk."],
+    choices: [
+      {
+        parts: [
+          { text: "The report " },
+          { text: "is", isBold: true },
+          { text: " on your desk." },
+        ],
+        isCorrect: true,
+      },
+      {
+        parts: [
+          { text: "The report " },
+          { text: "are", isBold: true },
+          { text: " on your desk." },
+        ],
+        isCorrect: false,
+      },
+    ],
+    trailingSentences: ["Please review it before the meeting."],
+  },
+];
 const fallbackUserId = 1;
 
 export default function QuizSession() {
@@ -22,7 +106,9 @@ export default function QuizSession() {
   const errorMessage = useSignal("");
   const quiz = useSignal<LearningQuizResponse | null>(null);
   const contextQuiz = useSignal<ContextQuizResponse | null>(null);
-  const mode = useSignal<"4_choice" | "swipe" | "context">("4_choice");
+  const mode = useSignal<"4_choice" | "swipe" | "context" | "grammar">(
+    "4_choice",
+  );
   const contextText = useSignal(
     "Learning flows improve when practice is short and consistent.",
   );
@@ -38,13 +124,24 @@ export default function QuizSession() {
       ? ""
       : globalThis.localStorage.getItem("picker_license_key") ?? "",
   );
-  const totalCount = () => (mode.value === "context" ? 1 : sessionSize);
+  const totalCount = () => {
+    if (mode.value === "context") {
+      return 1;
+    }
+    if (mode.value === "grammar") {
+      return grammarItems.length;
+    }
+    return sessionSize;
+  };
 
   const loadQuiz = async () => {
     step.value = "loading";
     feedback.value = "";
     try {
-      if (mode.value === "context") {
+      if (mode.value === "grammar") {
+        quiz.value = null;
+        contextQuiz.value = null;
+      } else if (mode.value === "context") {
         const targets = contextTargets.value
           .split(",")
           .map((value) => value.trim())
@@ -73,7 +170,7 @@ export default function QuizSession() {
     void loadQuiz();
   }, []);
 
-  const setMode = (nextMode: "4_choice" | "swipe" | "context") => {
+  const setMode = (nextMode: "4_choice" | "swipe" | "context" | "grammar") => {
     mode.value = nextMode;
     index.value = 0;
     selectedIndex.value = null;
@@ -102,6 +199,22 @@ export default function QuizSession() {
   const checkAnswer = async () => {
     if (selectedIndex.value === null) {
       feedback.value = "Select an answer before checking.";
+      return;
+    }
+    if (mode.value === "grammar") {
+      const item = grammarItems[index.value];
+      if (!item) {
+        feedback.value = "Quiz content is missing.";
+        return;
+      }
+      const isCorrect = item.choices[selectedIndex.value]?.isCorrect ?? false;
+      if (isCorrect) {
+        correctCount.value += 1;
+        feedback.value = "Correct. Nice work.";
+      } else {
+        feedback.value = "Not quite. Review the hint and try again next time.";
+      }
+      step.value = "checked";
       return;
     }
     if (mode.value === "context") {
@@ -143,7 +256,9 @@ export default function QuizSession() {
       return;
     }
     const nextIndex = index.value + 1;
-    if (nextIndex >= sessionSize) {
+    const maxCount =
+      mode.value === "grammar" ? grammarItems.length : sessionSize;
+    if (nextIndex >= maxCount) {
       step.value = "finished";
       return;
     }
@@ -194,6 +309,15 @@ export default function QuizSession() {
                   onClick={() => setMode("context")}
                 >
                   Context
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  aria-pressed={mode.value === "grammar"}
+                  onClick={() => setMode("grammar")}
+                >
+                  Grammar
                 </button>
               </li>
             </menu>
@@ -376,6 +500,119 @@ export default function QuizSession() {
             <li>
               <button type="button" onClick={restartQuiz}>
                 Regenerate
+              </button>
+            </li>
+          </menu>
+        </details>
+      </section>
+    );
+  }
+
+  if (mode.value === "grammar") {
+    const item = grammarItems[index.value];
+    const isChecked = step.value === "checked";
+    if (!item) {
+      return (
+        <section>
+          {renderToolbar()}
+          <details>
+            <summary>Session Status</summary>
+            <h2>Quiz Data Missing</h2>
+            <p>The grammar quiz content is missing.</p>
+            <button type="button" onClick={loadQuiz}>
+              Reload
+            </button>
+          </details>
+        </section>
+      );
+    }
+
+    return (
+      <section>
+        {renderToolbar()}
+        <details>
+          <summary>Question</summary>
+          <header>
+            <p>
+              Question {index.value + 1} / {totalCount()}
+            </p>
+            <p>Score {correctCount.value}</p>
+          </header>
+          <section>
+            <h2>Leading Sentences</h2>
+            <ol>
+              {item.leadingSentences.map((sentence, sentenceIndex) => (
+                <li key={`${sentence}-${sentenceIndex}`}>{sentence}</li>
+              ))}
+            </ol>
+          </section>
+          <fieldset>
+            <legend>Choose the best sentence</legend>
+            <ol>
+              {item.choices.map((choice, choiceIndex) => {
+                const isSelected = choiceIndex === selectedIndex.value;
+                const showCorrect =
+                  isChecked && (choice.isCorrect || isSelected);
+                const statusLabel = showCorrect
+                  ? choice.isCorrect
+                    ? "Correct answer"
+                    : "Your choice"
+                  : isSelected
+                  ? "Selected"
+                  : "";
+
+                return (
+                  <li key={`grammar-choice-${choiceIndex}`}>
+                    <button
+                      type="button"
+                      aria-pressed={isSelected}
+                      onClick={() => selectChoice(choiceIndex)}
+                    >
+                      {choice.parts.map((part, partIndex) =>
+                        part.isBold ? (
+                          <strong key={`part-${choiceIndex}-${partIndex}`}>
+                            {part.text}
+                          </strong>
+                        ) : (
+                          part.text
+                        )
+                      )}
+                      {statusLabel ? <em> ({statusLabel})</em> : null}
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          </fieldset>
+          <section>
+            <h2>Trailing Sentences</h2>
+            <ol>
+              {item.trailingSentences.map((sentence, sentenceIndex) => (
+                <li key={`${sentence}-${sentenceIndex}`}>{sentence}</li>
+              ))}
+            </ol>
+          </section>
+          <p aria-live="polite">{feedback.value}</p>
+        </details>
+        <details>
+          <summary>Actions</summary>
+          <menu>
+            {!isChecked ? (
+              <li>
+                <button type="button" onClick={checkAnswer}>
+                  Check Answer
+                </button>
+              </li>
+            ) : (
+              <li>
+                <button type="button" onClick={nextQuestion}>
+                  Next
+                </button>
+              </li>
+            )}
+            <li>
+              <button type="button" onClick={restartQuiz}>
+                Start Over
               </button>
             </li>
           </menu>
