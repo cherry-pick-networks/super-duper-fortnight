@@ -20,7 +20,7 @@ backend payload as the source of truth.
 ## Current State
 - Component exists: `src/picker/learning/component/grammar.py`
 - No adapter will be added by design
-- Router does not expose a `/learning/quiz/grammar` endpoint
+- Grammar is served via the standard `/learning/quiz/{domain}` route using `domain=grammar`
 - Component payload does not match the desired UI structure
 
 ## Recommended Payload (Backend Response)
@@ -59,7 +59,7 @@ backend payload as the source of truth.
 ## Implementation Tasks (Backend)
 1. **Expose endpoint**
    - File: `src/picker/learning/router.py`
-   - Add: `GET /learning/quiz/grammar`
+   - Use: `GET /learning/quiz/{domain}` with `domain=grammar`
    - Accept `difficulty` and optional `topic`/`grammar` inputs if needed.
    - Call `component/grammar.py` directly (no adapter).
 

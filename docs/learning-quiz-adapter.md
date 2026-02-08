@@ -8,10 +8,12 @@ This document mirrors the backend learning adapter payloads used by the quiz UI.
 The frontend should render based on `skill.type` and `skill.content`.
 
 ## Endpoints
-- `GET /learning/quiz/lexis?count=1&mode=4_choice|swipe`
 - `POST /learning/quiz/context`
-- `GET /learning/quiz/phonology?difficulty=beginner`
-- `GET /learning/quiz/{domain}?difficulty=beginner` where `domain` maps to:
+- `GET /learning/quiz/{domain}` (standard)
+  - Example: `/learning/quiz/lexis?count=1&mode=4_choice`
+  - Example: `/learning/quiz/phonology?difficulty=beginner`
+  - Example: `/learning/quiz/grammar?difficulty=beginner&topic=practice&grammar=present_simple`
+  - `domain` maps to:
   - `text`, `reading`, `passage` -> text adapter
   - `formula`, `math`, `calculation` -> formula adapter
   - `phonology`, `pronunciation`, `listening` -> media adapter

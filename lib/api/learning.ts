@@ -178,11 +178,7 @@ export async function fetchLexisQuiz(
   count = 1,
   mode: "4_choice" | "swipe" = "4_choice",
 ): Promise<LearningQuizResponse> {
-  const params = new URLSearchParams({
-    count: String(count),
-    mode,
-  });
-  return apiFetch<LearningQuizResponse>(`/learning/quiz/lexis?${params}`);
+  return fetchDomainQuiz("lexis", { count, mode });
 }
 
 export async function fetchContextQuiz(
@@ -200,12 +196,37 @@ export async function fetchContextQuiz(
   });
 }
 
+type DomainQuizParams = {
+  difficulty?: string;
+  count?: number;
+  mode?: "4_choice" | "swipe";
+  topic?: string;
+  grammar?: string;
+};
+
 export async function fetchDomainQuiz(
   domain: string,
-  difficulty = "beginner",
+  params: DomainQuizParams = {},
 ): Promise<LearningQuizResponse> {
-  const params = new URLSearchParams({ difficulty });
-  return apiFetch<LearningQuizResponse>(`/learning/quiz/${domain}?${params}`);
+  const search = new URLSearchParams();
+  if (params.difficulty) {
+    search.set("difficulty", params.difficulty);
+  }
+  if (typeof params.count === "number") {
+    search.set("count", String(params.count));
+  }
+  if (params.mode) {
+    search.set("mode", params.mode);
+  }
+  if (params.topic) {
+    search.set("topic", params.topic);
+  }
+  if (params.grammar) {
+    search.set("grammar", params.grammar);
+  }
+  const query = search.toString();
+  const suffix = query ? `?${query}` : "";
+  return apiFetch<LearningQuizResponse>(`/learning/quiz/${domain}${suffix}`);
 }
 
 export async function fetchGrammarQuiz(
@@ -213,15 +234,13 @@ export async function fetchGrammarQuiz(
   topic = "practice",
   grammar = "present_simple",
 ): Promise<LearningQuizResponse> {
-  const params = new URLSearchParams({ difficulty, topic, grammar });
-  return apiFetch<LearningQuizResponse>(`/learning/quiz/grammar?${params}`);
+  return fetchDomainQuiz("grammar", { difficulty, topic, grammar });
 }
 
 export async function fetchPhonologyQuiz(
   difficulty = "beginner",
 ): Promise<LearningQuizResponse> {
-  const params = new URLSearchParams({ difficulty });
-  return apiFetch<LearningQuizResponse>(`/learning/quiz/phonology?${params}`);
+  return fetchDomainQuiz("phonology", { difficulty });
 }
 
 export type ComposedQuizRequest = {

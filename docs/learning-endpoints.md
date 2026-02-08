@@ -14,24 +14,22 @@ Base prefix: `/learning`
 - `POST /learning/quiz/context`
   - Request: `ContextQuizRequest { text, target_words[], difficulty }`
   - Response: `ContextQuizResponse { original_text, blanked_text, blanks[] }`
-- `GET /learning/quiz/lexis?count=5&mode=4_choice|swipe`
-  - Response: quiz payload from memory adapter (lexis component)
-- `GET /learning/quiz/phonology?difficulty=beginner`
-  - Response: quiz payload from media adapter (phonology component)
-- `GET /learning/quiz/pronunciation?difficulty=beginner`
-  - Response: quiz payload from media adapter (phonology component)
 - `GET /learning/quiz/atom?atom_type=lexis&target_level=B2&dataset=race&split=train`
   - Response: quiz payload parsed from `content_atom`
-- `GET /learning/quiz/grammar?difficulty=beginner&topic=practice&grammar=present_simple`
-  - Response: grammar quiz payload (direct grammar component)
-- `GET /learning/quiz/{domain}?difficulty=beginner`
-  - `domain` is mapped by backend to component type:
+- `GET /learning/quiz/{domain}`
+  - Standard quiz endpoint for all domains.
+  - Supported query params:
+    - `difficulty` (general)
+    - `count`, `mode=4_choice|swipe` (lexis)
+    - `topic`, `grammar` (grammar)
+  - `domain` mapping:
     - `text|reading|passage` -> text adapter
     - `memory|fsrs|memorization` -> memory adapter
     - `formula|math|calculation` -> formula adapter
     - `media|practice|training` -> media adapter
     - `lexis|vocab|vocabulary` -> memory adapter (content_type = lexis)
     - `phonology|pronunciation|listening` -> media adapter (content_type = phonology)
+    - `grammar` -> grammar component
 
 ## Quiz Payload Summary (UI-Facing)
 
