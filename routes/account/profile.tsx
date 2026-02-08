@@ -7,30 +7,28 @@ export default function AccountProfile() {
       tag="Account"
       description="Profile details and role assignments will appear here."
     >
-      <section>
-        <details>
-          <summary>Profile Areas</summary>
-          <table>
-            <caption>Profile sections</caption>
-            <thead>
-              <tr>
-                <th scope="col">Area</th>
-                <th scope="col">Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Identity</td>
-                <td>Name, email, and role metadata will be shown.</td>
-              </tr>
-              <tr>
-                <td>Security</td>
-                <td>Password, MFA, and session data will live here.</td>
-              </tr>
-            </tbody>
-          </table>
-        </details>
-      </section>
+      <details>
+        <summary>Profile Areas</summary>
+        <table>
+          <caption>Profile sections</caption>
+          <thead>
+            <tr>
+              <th scope="col">Area</th>
+              <th scope="col">Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Identity</td>
+              <td>Name, email, and role metadata will be shown.</td>
+            </tr>
+            <tr>
+              <td>Security</td>
+              <td>Password, MFA, and session data will live here.</td>
+            </tr>
+          </tbody>
+        </table>
+      </details>
     </PageShell>
   );
 }

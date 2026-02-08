@@ -8,9 +8,7 @@ export default function AccountLogin() {
       tag="Account"
       description="Use your account credentials to access the platform."
     >
-      <section>
-        <LoginForm />
-      </section>
+      <LoginForm />
     </PageShell>
   );
 }
