@@ -1,77 +1,40 @@
 import { useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
-import { ContentAtom, fetchContentAtoms } from "../lib/api/learning.ts";
+import { AtomQuizResponse, fetchAtomQuiz } from "../lib/api/learning.ts";
 
 type LoadState = "idle" | "loading" | "ready" | "error";
 
-const normalize = (value: string) => value.trim().toLowerCase();
-
-const uniqueValues = (values: Array<string | null | undefined>) => {
-  const filtered = values
-    .map((value) => (value ? value.trim() : ""))
-    .filter(Boolean);
-  return Array.from(new Set(filtered)).sort();
-};
-
 export default function ReceptiveQuiz() {
-  const atomList = useSignal<ContentAtom[]>([]);
+  const quiz = useSignal<AtomQuizResponse | null>(null);
   const loadState = useSignal<LoadState>("idle");
   const errorMessage = useSignal("");
   const targetLevel = useSignal("B2");
   const dataset = useSignal("race");
   const split = useSignal("train");
   const atomType = useSignal("lexis");
-  const atomIndex = useSignal(0);
 
-  const loadData = async () => {
+  const loadQuiz = async () => {
     loadState.value = "loading";
     errorMessage.value = "";
     try {
-      const atoms = await fetchContentAtoms();
-      atomList.value = atoms;
-      atomIndex.value = 0;
+      const response = await fetchAtomQuiz({
+        atom_type: atomType.value || undefined,
+        target_level: targetLevel.value || undefined,
+        dataset: dataset.value || undefined,
+        split: split.value || undefined,
+      });
+      quiz.value = response;
       loadState.value = "ready";
     } catch (error) {
       console.error(error);
-      errorMessage.value = "Failed to load receptive content.";
+      errorMessage.value = "Failed to load receptive quiz.";
       loadState.value = "error";
     }
   };
 
   useEffect(() => {
-    void loadData();
+    void loadQuiz();
   }, []);
-
-  const filteredAtoms = () => {
-    const atomKey = normalize(atomType.value);
-    return atomList.value.filter((atom) => {
-      const atomBody = atom.atom_body;
-      const atomLevel = normalize(String(atomBody?.target_level ?? ""));
-      const atomDataset = normalize(String(atomBody?.dataset ?? ""));
-      const atomSplit = normalize(String(atomBody?.split ?? ""));
-      if (targetLevel.value && atomLevel && atomLevel !== normalize(targetLevel.value)) {
-        return false;
-      }
-      if (dataset.value && atomDataset && atomDataset !== normalize(dataset.value)) {
-        return false;
-      }
-      if (split.value && atomSplit && atomSplit !== normalize(split.value)) {
-        return false;
-      }
-      if (!atomKey) {
-        return true;
-      }
-      return normalize(atom.atom_type) === atomKey;
-    });
-  };
-
-  const nextAtom = () => {
-    const atoms = filteredAtoms();
-    if (atoms.length === 0) {
-      return;
-    }
-    atomIndex.value = (atomIndex.value + 1) % atoms.length;
-  };
 
   if (loadState.value === "loading") {
     return (
@@ -79,7 +42,7 @@ export default function ReceptiveQuiz() {
         <details>
           <summary>Receptive Quiz</summary>
           <h2>Loading</h2>
-          <p>Fetching receptive sources and atoms.</p>
+          <p>Fetching the latest quiz from content atoms.</p>
         </details>
       </section>
     );
@@ -92,7 +55,7 @@ export default function ReceptiveQuiz() {
           <summary>Receptive Quiz</summary>
           <h2>Unable to load</h2>
           <p>{errorMessage.value}</p>
-          <button type="button" onClick={loadData}>
+          <button type="button" onClick={loadQuiz}>
             Retry
           </button>
         </details>
@@ -100,15 +63,9 @@ export default function ReceptiveQuiz() {
     );
   }
 
-  const atoms = filteredAtoms();
-  const activeAtom =
-    atoms.length > 0 ? atoms[atomIndex.value % atoms.length] : null;
-  const datasetOptions = uniqueValues(
-    atomList.value.map((atom) => String(atom.atom_body?.dataset ?? "")),
-  );
-  const splitOptions = uniqueValues(
-    atomList.value.map((atom) => String(atom.atom_body?.split ?? "")),
-  );
+  const skillType = quiz.value?.skill?.type;
+  const skillContent = quiz.value?.skill?.content;
+  const system = quiz.value?.system;
 
   return (
     <section>
@@ -117,10 +74,10 @@ export default function ReceptiveQuiz() {
         <header>
           <p>Content Atom</p>
           <h2>Receptive Quiz Preview</h2>
-          <p>Use filters to match CEFR tags and dataset splits.</p>
+          <p>Backend parsing is applied before sending quiz content.</p>
         </header>
         <fieldset>
-          <legend>Source Filters</legend>
+          <legend>Filters</legend>
           <label>
             <strong>Target Level</strong>
             <select
@@ -137,33 +94,18 @@ export default function ReceptiveQuiz() {
             <strong>Dataset</strong>
             <input
               value={dataset.value}
-              list="dataset-options"
               onInput={(event) =>
                 (dataset.value = (event.target as HTMLInputElement).value)}
             />
           </label>
-          <datalist id="dataset-options">
-            {datasetOptions.map((value) => (
-              <option key={value} value={value} />
-            ))}
-          </datalist>
           <label>
             <strong>Split</strong>
             <input
               value={split.value}
-              list="split-options"
               onInput={(event) =>
                 (split.value = (event.target as HTMLInputElement).value)}
             />
           </label>
-          <datalist id="split-options">
-            {splitOptions.map((value) => (
-              <option key={value} value={value} />
-            ))}
-          </datalist>
-        </fieldset>
-        <fieldset>
-          <legend>Atom Filters</legend>
           <label>
             <strong>Atom Type</strong>
             <select
@@ -171,69 +113,194 @@ export default function ReceptiveQuiz() {
               onChange={(event) =>
                 (atomType.value = (event.target as HTMLSelectElement).value)}
             >
-              <option value="">All</option>
               <option value="lexis">Lexis</option>
               <option value="grammar">Grammar</option>
               <option value="phonology">Phonology</option>
+              <option value="skill_receptive">Reading (Receptive)</option>
             </select>
           </label>
-          <button type="button" onClick={nextAtom}>
-            Next Atom
+          <button type="button" onClick={loadQuiz}>
+            Load Quiz
           </button>
         </fieldset>
-        <button type="button" onClick={loadData}>
-          Reload Data
-        </button>
       </details>
 
       <article>
         <details open>
-          <summary>Atom Preview</summary>
-          {activeAtom ? (
+          <summary>Quiz Metadata</summary>
+          {system ? (
+            <table>
+              <caption>Quiz metadata</caption>
+              <tbody>
+                <tr>
+                  <th scope="row">Domain</th>
+                  <td>{system.domain ?? "Unknown"}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Atom ID</th>
+                  <td>{system.atom_id ?? "Unknown"}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Source ID</th>
+                  <td>{system.source_id ?? "Unknown"}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Target Level</th>
+                  <td>{system.target_level ?? "Unknown"}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Dataset</th>
+                  <td>{system.dataset ?? "Unknown"}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Split</th>
+                  <td>{system.split ?? "Unknown"}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Example ID</th>
+                  <td>{system.example_id ?? "Unknown"}</td>
+                </tr>
+              </tbody>
+            </table>
+          ) : (
+            <p>No quiz metadata available.</p>
+          )}
+        </details>
+      </article>
+
+      <article>
+        <details open>
+          <summary>Quiz Content</summary>
+          {skillType === "reading_receptive" &&
+          skillContent &&
+          typeof skillContent === "object" &&
+          "passage" in skillContent ? (
             <section>
+              <h3>Passage</h3>
+              <p>{String(skillContent.passage ?? "")}</p>
+              <section>
+                <h3>Questions</h3>
+                {Array.isArray(skillContent.items) ? (
+                  <ol>
+                    {skillContent.items.map((item, itemIndex) => (
+                      <li key={`reading-item-${itemIndex}`}>
+                        <p>{item.question}</p>
+                        <ol>
+                          {item.options.map((option, optionIndex) => (
+                            <li key={`reading-opt-${itemIndex}-${optionIndex}`}>
+                              {option.text}
+                              {option.is_correct ? <small> (Correct)</small> : null}
+                            </li>
+                          ))}
+                        </ol>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p>No questions found.</p>
+                )}
+              </section>
+            </section>
+          ) : null}
+
+          {skillType === "4_choice" &&
+          skillContent &&
+          typeof skillContent === "object" &&
+          "options" in skillContent ? (
+            <section>
+              <h3>Multiple Choice</h3>
+              <p>
+                {"question" in skillContent
+                  ? String(skillContent.question ?? "")
+                  : "Select the best answer."}
+              </p>
+              <ol>
+                {Array.isArray(skillContent.options)
+                  ? skillContent.options.map((option, optionIndex) => (
+                    <li key={`lexis-opt-${optionIndex}`}>
+                      {option.text}
+                      {option.is_correct ? <small> (Correct)</small> : null}
+                    </li>
+                  ))
+                  : null}
+              </ol>
+            </section>
+          ) : null}
+
+          {skillType === "swipe_true_false" &&
+          skillContent &&
+          typeof skillContent === "object" &&
+          "word" in skillContent ? (
+            <section>
+              <h3>Phonology</h3>
               <table>
-                <caption>Atom metadata</caption>
+                <caption>Prompt</caption>
                 <tbody>
                   <tr>
-                    <th scope="row">Atom Type</th>
-                    <td>{activeAtom.atom_type}</td>
+                    <th scope="row">Word</th>
+                    <td>{String(skillContent.word ?? "")}</td>
                   </tr>
                   <tr>
-                    <th scope="row">Atom ID</th>
-                    <td>{activeAtom.id}</td>
+                    <th scope="row">Pronunciation</th>
+                    <td>{String(skillContent.pronunciation ?? "")}</td>
                   </tr>
                   <tr>
-                    <th scope="row">Source ID</th>
-                    <td>{activeAtom.source_id}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Atom Hash</th>
-                    <td>{activeAtom.atom_hash}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Target Level</th>
-                    <td>
-                      {String(activeAtom.atom_body?.target_level ?? "Unknown")}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Dataset</th>
-                    <td>{String(activeAtom.atom_body?.dataset ?? "Unknown")}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Split</th>
-                    <td>{String(activeAtom.atom_body?.split ?? "Unknown")}</td>
+                    <th scope="row">Match</th>
+                    <td>{skillContent.is_match ? "True" : "False"}</td>
                   </tr>
                 </tbody>
               </table>
-              <section>
-                <h3>Atom Body</h3>
-                <pre>{JSON.stringify(activeAtom.atom_body, null, 2)}</pre>
-              </section>
             </section>
-          ) : (
-            <p>No atoms match the filters.</p>
-          )}
+          ) : null}
+
+          {skillType === "grammar_two_choice" &&
+          skillContent &&
+          typeof skillContent === "object" &&
+          "choices" in skillContent ? (
+            <section>
+              <h3>Grammar</h3>
+              {Array.isArray(skillContent.leading_sentences) &&
+              skillContent.leading_sentences.length > 0 ? (
+                <section>
+                  <h4>Prompt</h4>
+                  <ul>
+                    {skillContent.leading_sentences.map((sentence, sentenceIndex) => (
+                      <li key={`leading-${sentenceIndex}`}>{sentence}</li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              <ol>
+                {Array.isArray(skillContent.choices)
+                  ? skillContent.choices.map((choice, choiceIndex) => (
+                    <li key={`grammar-choice-${choiceIndex}`}>
+                      {choice.parts?.map((part, partIndex) =>
+                        part.is_bold ? (
+                          <strong key={`part-${partIndex}`}>{part.text}</strong>
+                        ) : (
+                          part.text
+                        ),
+                      )}
+                      {choice.is_correct ? <small> (Correct)</small> : null}
+                    </li>
+                  ))
+                  : null}
+              </ol>
+              {Array.isArray(skillContent.trailing_sentences) &&
+              skillContent.trailing_sentences.length > 0 ? (
+                <section>
+                  <h4>Notes</h4>
+                  <ul>
+                    {skillContent.trailing_sentences.map((sentence, sentenceIndex) => (
+                      <li key={`trailing-${sentenceIndex}`}>{sentence}</li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+            </section>
+          ) : null}
+
+          {!skillType ? <p>No quiz content available.</p> : null}
         </details>
       </article>
     </section>

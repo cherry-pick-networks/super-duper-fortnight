@@ -20,6 +20,8 @@ Base prefix: `/learning`
   - Response: quiz payload from media adapter (phonology component)
 - `GET /learning/quiz/pronunciation?difficulty=beginner`
   - Response: quiz payload from media adapter (phonology component)
+- `GET /learning/quiz/atom?atom_type=lexis&target_level=B2&dataset=race&split=train`
+  - Response: quiz payload parsed from `content_atom`
 - `GET /learning/quiz/grammar?difficulty=beginner&topic=practice&grammar=present_simple`
   - Response: grammar quiz payload (direct grammar component)
 - `GET /learning/quiz/{domain}?difficulty=beginner`
@@ -83,6 +85,12 @@ Source: `ideal-happiness/src/picker/learning/component/grammar.py`
 - `skill.content.leading_sentences[]`
 - `skill.content.choices[] { parts[] { text, is_bold }, is_correct }`
 - `skill.content.trailing_sentences[]`
+
+### Atom quizzes (content_atom)
+Source: `ideal-happiness/src/picker/learning/atom_quiz.py`
+- `GET /learning/quiz/atom`
+- `skill.type`: `reading_receptive`, `4_choice`, `swipe_true_false`, `grammar_two_choice`
+- `system` includes `atom_id`, `source_id`, `dataset`, `split`, `example_id`, `target_level`
 
 ## Composed Quiz (Tool Bundle)
 Use this to request a quiz bundle composed by the backend based on subject and

@@ -54,13 +54,29 @@ export type GrammarQuizContent = {
   trailing_sentences: string[];
 };
 
+export type ReadingReceptiveOption = {
+  text: string;
+  is_correct: boolean;
+};
+
+export type ReadingReceptiveItem = {
+  question: string;
+  options: ReadingReceptiveOption[];
+};
+
+export type ReadingReceptiveContent = {
+  passage: string;
+  items: ReadingReceptiveItem[];
+};
+
 export type QuizSkillContent =
   | ReadingContent
   | CalculationContent
   | LexisFourChoiceContent
   | LexisSwipeContent
   | PhonologySwipeContent
-  | GrammarQuizContent;
+  | GrammarQuizContent
+  | ReadingReceptiveContent;
 
 export type LearningSkillType =
   | "reading"
@@ -113,6 +129,27 @@ export type ContextQuizResponse = {
   original_text: string;
   blanked_text: string;
   blanks: ContextBlank[];
+};
+
+export type AtomQuizSystem = LearningQuizSystem & {
+  source_id?: number;
+  dataset?: string;
+  split?: string;
+  example_id?: string;
+  target_level?: string;
+};
+
+export type AtomQuizSkillType = LearningSkillType | "reading_receptive";
+
+export type AtomQuizSkill = {
+  type?: AtomQuizSkillType;
+  content?: QuizSkillContent;
+};
+
+export type AtomQuizResponse = {
+  meta?: LearningQuizMeta;
+  system?: AtomQuizSystem;
+  skill?: AtomQuizSkill;
 };
 
 export type ContentSource = {
@@ -215,6 +252,14 @@ type AtomFilters = {
   source_id?: number;
 };
 
+type AtomQuizFilters = {
+  atom_type?: string;
+  target_level?: string;
+  dataset?: string;
+  split?: string;
+  atom_id?: number;
+};
+
 const buildQueryParams = (filters?: Record<string, string | number>) => {
   if (!filters) {
     return "";
@@ -242,6 +287,13 @@ export async function fetchContentAtoms(
 ): Promise<ContentAtom[]> {
   const query = buildQueryParams(filters);
   return apiFetch<ContentAtom[]>(`/learning/atoms${query}`);
+}
+
+export async function fetchAtomQuiz(
+  filters?: AtomQuizFilters,
+): Promise<AtomQuizResponse> {
+  const query = buildQueryParams(filters);
+  return apiFetch<AtomQuizResponse>(`/learning/quiz/atom${query}`);
 }
 
 export async function gradeQuiz(
