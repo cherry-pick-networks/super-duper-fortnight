@@ -23,6 +23,7 @@ WharfKit을 통해 블록체인 생태계(지갑 연결, 트랜잭션 서명)를
 
 ## 백엔드 연동
 - 기본 API 베이스: `http://127.0.0.1:8000`
+- 학습(learning) 엔드포인트 목록: `docs/learning-endpoints.md`
 - 인증/계정
   - `POST /accounts/auth/login`
   - `GET /accounts/auth/me`

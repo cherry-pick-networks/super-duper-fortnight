@@ -7,6 +7,10 @@ description: English grammar quiz structure
 This document defines the structure and rendering rules for the English grammar
 quiz. The layout is designed for No-CSS usage and relies on semantic HTML.
 
+## Status
+- Draft specification for a future adapter; not currently returned by backend
+  learning adapters.
+
 ## Structure
 1. Leading sentences (one or more).
 2. Two-choice sentence options.

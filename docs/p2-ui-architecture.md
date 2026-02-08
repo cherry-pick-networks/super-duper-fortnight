@@ -7,6 +7,7 @@ description: Phase 2 UI architecture and layout rules
 ## 1. Routing Structure
 - Routes are grouped by domain: `routes/account/`, `routes/learning/`, etc.
 - Interactive UI goes to `islands/` with minimal client scope.
+- Learning backend endpoints: `docs/learning-endpoints.md`.
 
 ## 2. Layout Strategy
 - Desktop-first layout for most pages.

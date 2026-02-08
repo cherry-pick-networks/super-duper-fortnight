@@ -5,14 +5,51 @@ export type QuizOption = {
   is_correct: boolean;
 };
 
-export type QuizSkillContent = {
+export type ReadingContent = {
+  text: string;
+};
+
+export type CalculationContent = {
+  expression: string;
+  answer_range?: Record<string, unknown> | null;
+};
+
+export type LexisFourChoiceContent = {
   question: string;
   options: QuizOption[];
   index?: number;
+};
+
+export type LexisSwipeContent = {
   mode?: string;
   label?: string;
   color?: string;
+  question: string;
+  options: QuizOption[];
 };
+
+export type PhonologySwipeContent = {
+  word: string;
+  pronunciation: string;
+  audio_url?: string | null;
+  syllables?: string | null;
+  score?: number | null;
+  is_match: boolean;
+};
+
+export type QuizSkillContent =
+  | ReadingContent
+  | CalculationContent
+  | LexisFourChoiceContent
+  | LexisSwipeContent
+  | PhonologySwipeContent;
+
+export type LearningSkillType =
+  | "reading"
+  | "calculation"
+  | "4_choice"
+  | "swipe_2_choice"
+  | "swipe_true_false";
 
 export type LearningQuizResponse = {
   meta?: {
@@ -23,10 +60,12 @@ export type LearningQuizResponse = {
   system?: {
     domain?: string;
     target?: number;
+    atom_id?: number;
+    part_of_speech?: string;
     difficulty?: string;
   };
   skill?: {
-    type?: string;
+    type?: LearningSkillType;
     content?: QuizSkillContent;
   };
 };
@@ -68,6 +107,21 @@ export async function fetchContextQuiz(
       difficulty,
     },
   });
+}
+
+export async function fetchDomainQuiz(
+  domain: string,
+  difficulty = "beginner",
+): Promise<LearningQuizResponse> {
+  const params = new URLSearchParams({ difficulty });
+  return apiFetch<LearningQuizResponse>(`/learning/quiz/${domain}?${params}`);
+}
+
+export async function fetchPhonologyQuiz(
+  difficulty = "beginner",
+): Promise<LearningQuizResponse> {
+  const params = new URLSearchParams({ difficulty });
+  return apiFetch<LearningQuizResponse>(`/learning/quiz/phonology?${params}`);
 }
 
 export async function gradeQuiz(

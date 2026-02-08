@@ -3,99 +3,24 @@ import { useEffect } from "preact/hooks";
 import {
   ContextQuizResponse,
   fetchContextQuiz,
+  fetchDomainQuiz,
   fetchLexisQuiz,
+  fetchPhonologyQuiz,
   gradeQuiz,
   LearningQuizResponse,
 } from "../lib/api/learning.ts";
 
 type QuizStep = "loading" | "answering" | "checked" | "finished" | "error";
 
-type GrammarChoicePart = {
-  text: string;
-  isBold?: boolean;
-};
-
-type GrammarChoice = {
-  parts: GrammarChoicePart[];
-  isCorrect: boolean;
-};
-
-type GrammarQuizItem = {
-  leadingSentences: string[];
-  choices: [GrammarChoice, GrammarChoice];
-  trailingSentences: string[];
-};
-
 const sessionSize = 5;
-const grammarItems: GrammarQuizItem[] = [
-  {
-    leadingSentences: ["She ____ to the office every day."],
-    choices: [
-      {
-        parts: [
-          { text: "She " },
-          { text: "goes", isBold: true },
-          { text: " to the office every day." },
-        ],
-        isCorrect: true,
-      },
-      {
-        parts: [
-          { text: "She " },
-          { text: "go", isBold: true },
-          { text: " to the office every day." },
-        ],
-        isCorrect: false,
-      },
-    ],
-    trailingSentences: ["Her schedule is consistent throughout the week."],
-  },
-  {
-    leadingSentences: ["If he ____ earlier, he would have caught the train."],
-    choices: [
-      {
-        parts: [
-          { text: "If he " },
-          { text: "had left", isBold: true },
-          { text: " earlier, he would have caught the train." },
-        ],
-        isCorrect: true,
-      },
-      {
-        parts: [
-          { text: "If he " },
-          { text: "left", isBold: true },
-          { text: " earlier, he would have caught the train." },
-        ],
-        isCorrect: false,
-      },
-    ],
-    trailingSentences: ["He missed it by a few minutes."],
-  },
-  {
-    leadingSentences: ["The report ____ on your desk."],
-    choices: [
-      {
-        parts: [
-          { text: "The report " },
-          { text: "is", isBold: true },
-          { text: " on your desk." },
-        ],
-        isCorrect: true,
-      },
-      {
-        parts: [
-          { text: "The report " },
-          { text: "are", isBold: true },
-          { text: " on your desk." },
-        ],
-        isCorrect: false,
-      },
-    ],
-    trailingSentences: ["Please review it before the meeting."],
-  },
-];
 const fallbackUserId = 1;
+type QuizMode =
+  | "lexis_4_choice"
+  | "lexis_swipe"
+  | "context"
+  | "reading"
+  | "calculation"
+  | "phonology";
 
 export default function QuizSession() {
   const step = useSignal<QuizStep>("loading");
@@ -106,14 +31,12 @@ export default function QuizSession() {
   const errorMessage = useSignal("");
   const quiz = useSignal<LearningQuizResponse | null>(null);
   const contextQuiz = useSignal<ContextQuizResponse | null>(null);
-  const mode = useSignal<"4_choice" | "swipe" | "context" | "grammar">(
-    "4_choice",
-  );
+  const mode = useSignal<QuizMode>("lexis_4_choice");
   const contextText = useSignal(
     "Learning flows improve when practice is short and consistent.",
   );
   const contextTargets = useSignal("practice,consistent");
-  const contextDifficulty = useSignal("medium");
+  const difficulty = useSignal("beginner");
   const userId = useSignal(
     typeof globalThis === "undefined" || !("localStorage" in globalThis)
       ? "1"
@@ -128,20 +51,17 @@ export default function QuizSession() {
     if (mode.value === "context") {
       return 1;
     }
-    if (mode.value === "grammar") {
-      return grammarItems.length;
+    if (mode.value === "lexis_4_choice" || mode.value === "lexis_swipe") {
+      return sessionSize;
     }
-    return sessionSize;
+    return 1;
   };
 
   const loadQuiz = async () => {
     step.value = "loading";
     feedback.value = "";
     try {
-      if (mode.value === "grammar") {
-        quiz.value = null;
-        contextQuiz.value = null;
-      } else if (mode.value === "context") {
+      if (mode.value === "context") {
         const targets = contextTargets.value
           .split(",")
           .map((value) => value.trim())
@@ -149,12 +69,32 @@ export default function QuizSession() {
         const response = await fetchContextQuiz(
           contextText.value,
           targets,
-          contextDifficulty.value,
+          difficulty.value,
         );
         contextQuiz.value = response;
         quiz.value = null;
+      } else if (mode.value === "lexis_4_choice") {
+        const response = await fetchLexisQuiz(1, "4_choice");
+        quiz.value = response;
+        contextQuiz.value = null;
+      } else if (mode.value === "lexis_swipe") {
+        const response = await fetchLexisQuiz(1, "swipe");
+        quiz.value = response;
+        contextQuiz.value = null;
+      } else if (mode.value === "reading") {
+        const response = await fetchDomainQuiz("text", difficulty.value);
+        quiz.value = response;
+        contextQuiz.value = null;
+      } else if (mode.value === "calculation") {
+        const response = await fetchDomainQuiz("formula", difficulty.value);
+        quiz.value = response;
+        contextQuiz.value = null;
+      } else if (mode.value === "phonology") {
+        const response = await fetchPhonologyQuiz(difficulty.value);
+        quiz.value = response;
+        contextQuiz.value = null;
       } else {
-        const response = await fetchLexisQuiz(1, mode.value);
+        const response = await fetchLexisQuiz(1, "4_choice");
         quiz.value = response;
         contextQuiz.value = null;
       }
@@ -170,7 +110,7 @@ export default function QuizSession() {
     void loadQuiz();
   }, []);
 
-  const setMode = (nextMode: "4_choice" | "swipe" | "context" | "grammar") => {
+  const setMode = (nextMode: QuizMode) => {
     mode.value = nextMode;
     index.value = 0;
     selectedIndex.value = null;
@@ -197,17 +137,35 @@ export default function QuizSession() {
   };
 
   const checkAnswer = async () => {
-    if (selectedIndex.value === null) {
+    const requiresSelection =
+      mode.value === "lexis_4_choice" ||
+      mode.value === "lexis_swipe" ||
+      mode.value === "context" ||
+      mode.value === "phonology";
+    if (requiresSelection && selectedIndex.value === null) {
       feedback.value = "Select an answer before checking.";
       return;
     }
-    if (mode.value === "grammar") {
-      const item = grammarItems[index.value];
-      if (!item) {
+    if (mode.value === "reading" || mode.value === "calculation") {
+      feedback.value = "Marked as done.";
+      step.value = "checked";
+      return;
+    }
+    if (mode.value === "phonology") {
+      const content = quiz.value?.skill?.content;
+      const isMatch =
+        typeof content === "object" &&
+        content !== null &&
+        "is_match" in content
+          ? Boolean(content.is_match)
+          : null;
+      if (typeof isMatch !== "boolean" || selectedIndex.value === null) {
         feedback.value = "Quiz content is missing.";
         return;
       }
-      const isCorrect = item.choices[selectedIndex.value]?.isCorrect ?? false;
+      const isCorrect =
+        (selectedIndex.value === 0 && isMatch) ||
+        (selectedIndex.value === 1 && !isMatch);
       if (isCorrect) {
         correctCount.value += 1;
         feedback.value = "Correct. Nice work.";
@@ -224,12 +182,16 @@ export default function QuizSession() {
     }
 
     const item = quiz.value?.skill?.content;
-    if (!item) {
+    const options =
+      typeof item === "object" && item !== null && "options" in item
+        ? item.options
+        : null;
+    if (!item || !Array.isArray(options)) {
       feedback.value = "Quiz content is missing.";
       return;
     }
 
-    const correctIndex = item.options.findIndex((option) => option.is_correct);
+    const correctIndex = options.findIndex((option) => option.is_correct);
     const isCorrect = selectedIndex.value === correctIndex;
     if (isCorrect) {
       correctCount.value += 1;
@@ -257,7 +219,9 @@ export default function QuizSession() {
     }
     const nextIndex = index.value + 1;
     const maxCount =
-      mode.value === "grammar" ? grammarItems.length : sessionSize;
+      mode.value === "lexis_4_choice" || mode.value === "lexis_swipe"
+        ? sessionSize
+        : 1;
     if (nextIndex >= maxCount) {
       step.value = "finished";
       return;
@@ -287,19 +251,19 @@ export default function QuizSession() {
               <li>
                 <button
                   type="button"
-                  aria-pressed={mode.value === "4_choice"}
-                  onClick={() => setMode("4_choice")}
+                  aria-pressed={mode.value === "lexis_4_choice"}
+                  onClick={() => setMode("lexis_4_choice")}
                 >
-                  4-Choice
+                  Lexis 4-Choice
                 </button>
               </li>
               <li>
                 <button
                   type="button"
-                  aria-pressed={mode.value === "swipe"}
-                  onClick={() => setMode("swipe")}
+                  aria-pressed={mode.value === "lexis_swipe"}
+                  onClick={() => setMode("lexis_swipe")}
                 >
-                  Swipe
+                  Lexis Swipe
                 </button>
               </li>
               <li>
@@ -314,10 +278,28 @@ export default function QuizSession() {
               <li>
                 <button
                   type="button"
-                  aria-pressed={mode.value === "grammar"}
-                  onClick={() => setMode("grammar")}
+                  aria-pressed={mode.value === "reading"}
+                  onClick={() => setMode("reading")}
                 >
-                  Grammar
+                  Reading
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  aria-pressed={mode.value === "calculation"}
+                  onClick={() => setMode("calculation")}
+                >
+                  Calculation
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  aria-pressed={mode.value === "phonology"}
+                  onClick={() => setMode("phonology")}
+                >
+                  Phonology
                 </button>
               </li>
             </menu>
@@ -345,6 +327,21 @@ export default function QuizSession() {
             Apply
           </button>
         </fieldset>
+        <fieldset>
+          <legend>Quiz Settings</legend>
+          <label>
+            <strong>Difficulty</strong>
+            <input
+              value={difficulty.value}
+              onInput={(event) =>
+                (difficulty.value =
+                  (event.target as HTMLInputElement).value)}
+            />
+          </label>
+          <button type="button" onClick={loadQuiz}>
+            Reload Quiz
+          </button>
+        </fieldset>
         {mode.value === "context" ? (
           <fieldset>
             <legend>Context Quiz</legend>
@@ -363,15 +360,6 @@ export default function QuizSession() {
                 value={contextTargets.value}
                 onInput={(event) =>
                   (contextTargets.value =
-                    (event.target as HTMLInputElement).value)}
-              />
-            </label>
-            <label>
-              <strong>Difficulty</strong>
-              <input
-                value={contextDifficulty.value}
-                onInput={(event) =>
-                  (contextDifficulty.value =
                     (event.target as HTMLInputElement).value)}
               />
             </label>
@@ -508,90 +496,27 @@ export default function QuizSession() {
     );
   }
 
-  if (mode.value === "grammar") {
-    const item = grammarItems[index.value];
-    const isChecked = step.value === "checked";
-    if (!item) {
-      return (
-        <section>
-          {renderToolbar()}
-          <details>
-            <summary>Session Status</summary>
-            <h2>Quiz Data Missing</h2>
-            <p>The grammar quiz content is missing.</p>
-            <button type="button" onClick={loadQuiz}>
-              Reload
-            </button>
-          </details>
-        </section>
-      );
-    }
+  const content = quiz.value?.skill?.content;
+  const skillType = quiz.value?.skill?.type;
+  const isChecked = step.value === "checked";
 
+  if (mode.value === "reading" && skillType === "reading") {
+    const text =
+      typeof content === "object" && content !== null && "text" in content
+        ? String(content.text ?? "")
+        : "";
     return (
       <section>
         {renderToolbar()}
         <details>
-          <summary>Question</summary>
+          <summary>Reading</summary>
           <header>
             <p>
               Question {index.value + 1} / {totalCount()}
             </p>
             <p>Score {correctCount.value}</p>
           </header>
-          <section>
-            <h2>Leading Sentences</h2>
-            <ol>
-              {item.leadingSentences.map((sentence, sentenceIndex) => (
-                <li key={`${sentence}-${sentenceIndex}`}>{sentence}</li>
-              ))}
-            </ol>
-          </section>
-          <fieldset>
-            <legend>Choose the best sentence</legend>
-            <ol>
-              {item.choices.map((choice, choiceIndex) => {
-                const isSelected = choiceIndex === selectedIndex.value;
-                const showCorrect =
-                  isChecked && (choice.isCorrect || isSelected);
-                const statusLabel = showCorrect
-                  ? choice.isCorrect
-                    ? "Correct answer"
-                    : "Your choice"
-                  : isSelected
-                  ? "Selected"
-                  : "";
-
-                return (
-                  <li key={`grammar-choice-${choiceIndex}`}>
-                    <button
-                      type="button"
-                      aria-pressed={isSelected}
-                      onClick={() => selectChoice(choiceIndex)}
-                    >
-                      {choice.parts.map((part, partIndex) =>
-                        part.isBold ? (
-                          <strong key={`part-${choiceIndex}-${partIndex}`}>
-                            {part.text}
-                          </strong>
-                        ) : (
-                          part.text
-                        )
-                      )}
-                      {statusLabel ? <em> ({statusLabel})</em> : null}
-                    </button>
-                  </li>
-                );
-              })}
-            </ol>
-          </fieldset>
-          <section>
-            <h2>Trailing Sentences</h2>
-            <ol>
-              {item.trailingSentences.map((sentence, sentenceIndex) => (
-                <li key={`${sentence}-${sentenceIndex}`}>{sentence}</li>
-              ))}
-            </ol>
-          </section>
+          <p>{text}</p>
           <p aria-live="polite">{feedback.value}</p>
         </details>
         <details>
@@ -600,13 +525,13 @@ export default function QuizSession() {
             {!isChecked ? (
               <li>
                 <button type="button" onClick={checkAnswer}>
-                  Check Answer
+                  Mark as Done
                 </button>
               </li>
             ) : (
               <li>
                 <button type="button" onClick={nextQuestion}>
-                  Next
+                  Finish
                 </button>
               </li>
             )}
@@ -621,10 +546,223 @@ export default function QuizSession() {
     );
   }
 
-  const item = quiz.value?.skill?.content;
-  const isChecked = step.value === "checked";
+  if (mode.value === "calculation" && skillType === "calculation") {
+    const expression =
+      typeof content === "object" && content !== null && "expression" in content
+        ? String(content.expression ?? "")
+        : "";
+    const answerRange =
+      typeof content === "object" && content !== null && "answer_range" in content
+        ? content.answer_range
+        : null;
+    const answerRangeText = answerRange
+      ? JSON.stringify(answerRange, null, 2)
+      : "";
+    return (
+      <section>
+        {renderToolbar()}
+        <details>
+          <summary>Calculation</summary>
+          <header>
+            <p>
+              Question {index.value + 1} / {totalCount()}
+            </p>
+            <p>Score {correctCount.value}</p>
+          </header>
+          <section>
+            <h2>Expression</h2>
+            <p>
+              <code>{expression}</code>
+            </p>
+          </section>
+          {answerRangeText ? (
+            <section>
+              <h2>Answer Range</h2>
+              <pre>{answerRangeText}</pre>
+            </section>
+          ) : null}
+          <p aria-live="polite">{feedback.value}</p>
+        </details>
+        <details>
+          <summary>Actions</summary>
+          <menu>
+            {!isChecked ? (
+              <li>
+                <button type="button" onClick={checkAnswer}>
+                  Mark as Done
+                </button>
+              </li>
+            ) : (
+              <li>
+                <button type="button" onClick={nextQuestion}>
+                  Finish
+                </button>
+              </li>
+            )}
+            <li>
+              <button type="button" onClick={restartQuiz}>
+                Start Over
+              </button>
+            </li>
+          </menu>
+        </details>
+      </section>
+    );
+  }
 
-  if (!item) {
+  if (mode.value === "phonology" && skillType === "swipe_true_false") {
+    const isMatch =
+      typeof content === "object" && content !== null && "is_match" in content
+        ? Boolean(content.is_match)
+        : null;
+    const word =
+      typeof content === "object" && content !== null && "word" in content
+        ? String(content.word ?? "")
+        : "";
+    const pronunciation =
+      typeof content === "object" && content !== null && "pronunciation" in content
+        ? String(content.pronunciation ?? "")
+        : "";
+    const audioUrl =
+      typeof content === "object" && content !== null && "audio_url" in content
+        ? String(content.audio_url ?? "")
+        : "";
+    const syllables =
+      typeof content === "object" && content !== null && "syllables" in content
+        ? String(content.syllables ?? "")
+        : "";
+    const scoreValue =
+      typeof content === "object" && content !== null && "score" in content
+        ? String(content.score ?? "")
+        : "";
+    return (
+      <section>
+        {renderToolbar()}
+        <details>
+          <summary>Phonology</summary>
+          <header>
+            <p>
+              Question {index.value + 1} / {totalCount()}
+            </p>
+            <p>Score {correctCount.value}</p>
+          </header>
+          <table>
+            <caption>Prompt</caption>
+            <tbody>
+              <tr>
+                <th scope="row">Word</th>
+                <td>{word}</td>
+              </tr>
+              <tr>
+                <th scope="row">Pronunciation</th>
+                <td>{pronunciation}</td>
+              </tr>
+              {syllables ? (
+                <tr>
+                  <th scope="row">Syllables</th>
+                  <td>{syllables}</td>
+                </tr>
+              ) : null}
+              {scoreValue ? (
+                <tr>
+                  <th scope="row">Score</th>
+                  <td>{scoreValue}</td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+          {audioUrl ? (
+            <section>
+              <h2>Audio</h2>
+              <audio controls src={audioUrl} />
+            </section>
+          ) : null}
+          <fieldset>
+            <legend>Does the audio match the word?</legend>
+            <ol>
+              <li>
+                <button
+                  type="button"
+                  aria-pressed={selectedIndex.value === 0}
+                  onClick={() => selectChoice(0)}
+                >
+                  True
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  aria-pressed={selectedIndex.value === 1}
+                  onClick={() => selectChoice(1)}
+                >
+                  False
+                </button>
+              </li>
+            </ol>
+          </fieldset>
+          {isChecked && typeof isMatch === "boolean" ? (
+            <p>
+              Correct answer: {isMatch ? "True" : "False"}
+            </p>
+          ) : null}
+          <p aria-live="polite">{feedback.value}</p>
+        </details>
+        <details>
+          <summary>Actions</summary>
+          <menu>
+            {!isChecked ? (
+              <li>
+                <button type="button" onClick={checkAnswer}>
+                  Check Answer
+                </button>
+              </li>
+            ) : (
+              <li>
+                <button type="button" onClick={nextQuestion}>
+                  Finish
+                </button>
+              </li>
+            )}
+            <li>
+              <button type="button" onClick={restartQuiz}>
+                Start Over
+              </button>
+            </li>
+          </menu>
+        </details>
+      </section>
+    );
+  }
+
+  if (!content) {
+    return (
+      <section>
+        {renderToolbar()}
+        <details>
+          <summary>Session Status</summary>
+          <h2>Quiz Data Missing</h2>
+          <p>The API response did not include quiz content.</p>
+          <button type="button" onClick={loadQuiz}>
+            Reload
+          </button>
+        </details>
+      </section>
+    );
+  }
+
+  const options =
+    typeof content === "object" && content !== null && "options" in content
+      ? content.options
+      : null;
+  const question =
+    typeof content === "object" && content !== null && "question" in content
+      ? String(content.question ?? "")
+      : "";
+  const label =
+    typeof content === "object" && content !== null && "label" in content
+      ? String(content.label ?? "")
+      : "";
+  if (!Array.isArray(options)) {
     return (
       <section>
         {renderToolbar()}
@@ -651,9 +789,9 @@ export default function QuizSession() {
           </p>
           <p>Score {correctCount.value}</p>
         </header>
-        <h2>{item.question}</h2>
+        <h2>{question}</h2>
         <ol>
-          {item.options.map((choice, choiceIndex) => {
+          {options.map((choice, choiceIndex) => {
             const isSelected = choiceIndex === selectedIndex.value;
             const isCorrectChoice = choice.is_correct;
             const showCorrect =
@@ -673,9 +811,9 @@ export default function QuizSession() {
                   aria-pressed={isSelected}
                   onClick={() => selectChoice(choiceIndex)}
                 >
-                  {mode.value === "swipe" ? (
-                    <strong>{item.label ?? "Swipe"}</strong>
-                  ) : null}{" "}
+                {skillType === "swipe_2_choice" && label ? (
+                  <strong>{label}</strong>
+                ) : null}{" "}
                   {choice.text}
                   {statusLabel ? <small> ({statusLabel})</small> : null}
                 </button>

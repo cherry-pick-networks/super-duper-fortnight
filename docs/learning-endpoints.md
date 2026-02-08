@@ -1,0 +1,111 @@
+---
+description: Learning backend endpoints
+---
+
+# Learning Backend Endpoints
+
+This document mirrors the backend learning router (`ideal-happiness`) and is
+the source of truth for frontend integration. The frontend must align to these
+endpoints and payloads.
+
+Base prefix: `/learning`
+
+## Quizzes
+- `POST /learning/quiz/context`
+  - Request: `ContextQuizRequest { text, target_words[], difficulty }`
+  - Response: `ContextQuizResponse { original_text, blanked_text, blanks[] }`
+- `GET /learning/quiz/lexis?count=5&mode=4_choice|swipe`
+  - Response: quiz payload from memory adapter (lexis component)
+- `GET /learning/quiz/phonology?difficulty=beginner`
+  - Response: quiz payload from media adapter (phonology component)
+- `GET /learning/quiz/pronunciation?difficulty=beginner`
+  - Response: quiz payload from media adapter (phonology component)
+- `GET /learning/quiz/{domain}?difficulty=beginner`
+  - `domain` is mapped by backend to component type:
+    - `text|reading|passage` -> text adapter
+    - `memory|fsrs|memorization` -> memory adapter
+    - `formula|math|calculation` -> formula adapter
+    - `media|practice|training` -> media adapter
+    - `lexis|vocab|vocabulary` -> memory adapter (content_type = lexis)
+    - `phonology|pronunciation|listening` -> media adapter (content_type = phonology)
+
+## Quiz Payload Summary (UI-Facing)
+
+These are the minimal fields used by the frontend. For exact sources, see:
+`ideal-happiness/src/picker/learning/component/*.py` and
+`ideal-happiness/src/picker/learning/schema.py`.
+
+### Lexis 4-choice
+Source: `ideal-happiness/src/picker/learning/component/lexis.py`
+- `skill.type`: `4_choice`
+- `skill.content.question`
+- `skill.content.options[] { text, is_correct }`
+
+### Lexis swipe
+Source: `ideal-happiness/src/picker/learning/component/lexis.py`
+- `skill.type`: `swipe_2_choice`
+- `skill.content.question`
+- `skill.content.label`
+- `skill.content.options[] { text, is_correct }`
+
+### Context quiz
+Source: `ideal-happiness/src/picker/learning/schema.py`
+- `original_text`
+- `blanked_text`
+- `blanks[] { index, answer, original_idx, options[] }`
+
+### Reading
+Source: `ideal-happiness/src/picker/learning/component/text.py`
+- `skill.type`: `reading`
+- `skill.content.text`
+
+### Calculation
+Source: `ideal-happiness/src/picker/learning/component/formula.py`
+- `skill.type`: `calculation`
+- `skill.content.expression`
+- `skill.content.answer_range` (optional)
+
+### Phonology
+Source: `ideal-happiness/src/picker/learning/component/phonology.py`
+- `skill.type`: `swipe_true_false`
+- `skill.content.word`
+- `skill.content.pronunciation`
+- `skill.content.audio_url` (optional)
+- `skill.content.syllables` (optional)
+- `skill.content.score` (optional)
+- `skill.content.is_match`
+
+## Grading
+- `POST /learning/grade?user_id={id}&quiz_id={id}&score={0-100}`
+  - Response: `{ status: "graded", perfect: boolean }`
+
+## Components
+- `GET /learning/components`
+- `POST /learning/components`
+
+## Packages
+- `GET /learning/packages`
+- `POST /learning/packages`
+- `POST /learning/packages/{package_id}/components/{component_id}`
+
+## Sources
+- `GET /learning/sources`
+- `POST /learning/sources`
+- `GET /learning/sources/{source_id}`
+
+## Atoms
+- `GET /learning/atoms`
+- `POST /learning/atoms`
+- `GET /learning/atoms/{atom_id}`
+
+## Tags
+- `POST /learning/tags`
+
+## Listening Sync
+- `POST /learning/syncs`
+
+## FSRS Profiles
+- `POST /learning/profiles`
+- `GET /learning/profiles`
+- `GET /learning/profiles/{profile_id}`
+- `PATCH /learning/profiles/{profile_id}`
