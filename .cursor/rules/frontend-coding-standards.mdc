@@ -52,6 +52,9 @@ alwaysApply: true
 
 ## HTML Tags (Allowed)
 - Use only the 118 HTML5 tags listed below.
+- Note: Preact-friendly UI tags (e.g., dialog, details, summary, menu, canvas,
+  svg, progress, meter, output, datalist, template, slot) are included in the
+  list below; use them freely.
 - html, head, body, title, meta, link, base
 - header, footer, main, nav, aside, section, article, h1, h2, h3, h4, h5, h6, hgroup, address
 - p, hr, pre, blockquote, ol, ul, li, dl, dt, dd, figure, figcaption, div
