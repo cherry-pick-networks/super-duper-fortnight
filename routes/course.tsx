@@ -8,13 +8,14 @@ export default function CoursePage() {
       description="Course list, enrollment, and details."
     >
       <section>
-        <details open>
+        <details>
           <summary>Course Overview</summary>
           <table>
+            <caption>Course sections</caption>
             <thead>
               <tr>
-                <th>Area</th>
-                <th>Details</th>
+                <th scope="col">Area</th>
+                <th scope="col">Details</th>
               </tr>
             </thead>
             <tbody>

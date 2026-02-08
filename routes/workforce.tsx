@@ -8,13 +8,14 @@ export default function WorkforcePage() {
       description="Time tracking, leave, and staff operations."
     >
       <section>
-        <details open>
+        <details>
           <summary>Workforce Overview</summary>
           <table>
+            <caption>Workforce sections</caption>
             <thead>
               <tr>
-                <th>Area</th>
-                <th>Details</th>
+                <th scope="col">Area</th>
+                <th scope="col">Details</th>
               </tr>
             </thead>
             <tbody>

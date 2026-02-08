@@ -8,13 +8,14 @@ export default function LearningProgress() {
       description="Progress metrics and mastery charts will live here."
     >
       <section>
-        <details open>
+        <details>
           <summary>Progress Sections</summary>
           <table>
+            <caption>Progress summary</caption>
             <thead>
               <tr>
-                <th>Area</th>
-                <th>Details</th>
+                <th scope="col">Area</th>
+                <th scope="col">Details</th>
               </tr>
             </thead>
             <tbody>

@@ -18,7 +18,7 @@ principles across the frontend.
 - Express visual grouping with sectioning and heading hierarchy.
 - Rely on tables, lists, and fieldsets for layout structure.
 - Prefer native interactive elements like `details/summary`, `dialog`, and form controls.
-- Use semantic HTML tags whenever possible; avoid `div` and `span` unless no alternative exists.
+- Use semantic HTML tags whenever possible; do not use `div` or `span`.
 
 ## Allowed Tags
 - Use only the HTML5 standard tag list (118) defined in project rules.

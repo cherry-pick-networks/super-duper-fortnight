@@ -22,7 +22,7 @@ alwaysApply: true
 
 ## HTML Authoring
 - Use semantic HTML tags whenever possible.
-- Avoid `div` and `span` unless no semantic alternative exists.
+- Do not use `div` or `span`.
 - Prefer sectioning tags (`header`, `main`, `section`, `article`, `footer`) for layout.
 
 ## Architecture

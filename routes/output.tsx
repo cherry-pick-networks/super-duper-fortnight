@@ -8,13 +8,14 @@ export default function OutputPage() {
       description="Shared resource monitoring and print usage logs."
     >
       <section>
-        <details open>
+        <details>
           <summary>Output Overview</summary>
           <table>
+            <caption>Output sections</caption>
             <thead>
               <tr>
-                <th>Area</th>
-                <th>Details</th>
+                <th scope="col">Area</th>
+                <th scope="col">Details</th>
               </tr>
             </thead>
             <tbody>

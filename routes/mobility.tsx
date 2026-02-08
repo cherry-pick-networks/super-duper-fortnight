@@ -8,13 +8,14 @@ export default function MobilityPage() {
       description="Route management, stops, and schedules."
     >
       <section>
-        <details open>
+        <details>
           <summary>Mobility Overview</summary>
           <table>
+            <caption>Mobility sections</caption>
             <thead>
               <tr>
-                <th>Area</th>
-                <th>Details</th>
+                <th scope="col">Area</th>
+                <th scope="col">Details</th>
               </tr>
             </thead>
             <tbody>

@@ -8,13 +8,14 @@ export default function FinancePage() {
       description="Invoices, payments, and payroll summaries."
     >
       <section>
-        <details open>
+        <details>
           <summary>Finance Overview</summary>
           <table>
+            <caption>Finance sections</caption>
             <thead>
               <tr>
-                <th>Area</th>
-                <th>Details</th>
+                <th scope="col">Area</th>
+                <th scope="col">Details</th>
               </tr>
             </thead>
             <tbody>

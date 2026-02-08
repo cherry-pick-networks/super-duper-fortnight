@@ -31,18 +31,20 @@ export default function PageShell({
       <header>
         <p>Picker</p>
       </header>
-      <details>
-        <summary>Menu</summary>
-        <nav>
-          <ul>
-            {navItems.map((item) => (
-              <li key={item.href}>
-                <a href={item.href}>{item.label}</a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </details>
+      <aside>
+        <details>
+          <summary>Menu</summary>
+          <nav>
+            <menu>
+              {navItems.map((item) => (
+                <li key={item.href}>
+                  <a href={item.href}>{item.label}</a>
+                </li>
+              ))}
+            </menu>
+          </nav>
+        </details>
+      </aside>
       <main>
         <header>
           {tag ? <p>{tag}</p> : null}

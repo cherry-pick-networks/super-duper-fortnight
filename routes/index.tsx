@@ -9,43 +9,66 @@ export default function Home() {
       description="Desktop-first overview of product readiness and next steps."
     >
       <section>
-        <details open>
+        <details>
           <summary>System Overview</summary>
           <table>
+            <caption>System settings</caption>
             <tbody>
               <tr>
-                <th>API Base URL</th>
+                <th scope="row">API Base URL</th>
                 <td>
                   <code>http://127.0.0.1:8000</code>
                 </td>
               </tr>
               <tr>
-                <th>Environment</th>
+                <th scope="row">Environment</th>
                 <td>Use a proxy or environment override in production.</td>
               </tr>
             </tbody>
           </table>
-          <h3>Endpoints</h3>
-          <ul>
-            <li>Login: POST /accounts/auth/login</li>
-            <li>Profile: GET /accounts/auth/me</li>
-            <li>Refresh: POST /accounts/auth/refresh</li>
-          </ul>
+          <table>
+            <caption>Endpoints</caption>
+            <thead>
+              <tr>
+                <th scope="col">Action</th>
+                <th scope="col">Method</th>
+                <th scope="col">Path</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Login</td>
+                <td>POST</td>
+                <td>/accounts/auth/login</td>
+              </tr>
+              <tr>
+                <td>Profile</td>
+                <td>GET</td>
+                <td>/accounts/auth/me</td>
+              </tr>
+              <tr>
+                <td>Refresh</td>
+                <td>POST</td>
+                <td>/accounts/auth/refresh</td>
+              </tr>
+            </tbody>
+          </table>
         </details>
-        <details open>
+        <details>
           <summary>Wallet</summary>
           <WalletConnect />
         </details>
       </section>
 
       <section>
-        <details open>
+        <details>
           <summary>Quick Links</summary>
           <table>
+            <caption>Primary navigation</caption>
             <thead>
               <tr>
-                <th>Area</th>
-                <th>Focus</th>
+                <th scope="col">Area</th>
+                <th scope="col">Focus</th>
               </tr>
             </thead>
             <tbody>

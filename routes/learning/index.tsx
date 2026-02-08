@@ -8,13 +8,14 @@ export default function LearningHome() {
       description="Quiz and review flows are optimized for mobile-first execution."
     >
       <section>
-        <details open>
+        <details>
           <summary>Learning Sections</summary>
           <table>
+            <caption>Learning navigation</caption>
             <thead>
               <tr>
-                <th>Area</th>
-                <th>Focus</th>
+                <th scope="col">Area</th>
+                <th scope="col">Focus</th>
               </tr>
             </thead>
             <tbody>

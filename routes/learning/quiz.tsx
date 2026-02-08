@@ -3,7 +3,7 @@ import QuizSession from "../../islands/QuizSession.tsx";
 export default function LearningQuiz() {
   return (
     <main>
-      <details open>
+      <details>
         <summary>Quiz Overview</summary>
         <header>
           <p>Learning Quiz</p>

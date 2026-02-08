@@ -8,14 +8,15 @@ export default function LearningReview() {
       description="Upcoming reviews and FSRS memory state insights."
     >
       <section>
-        <details open>
+        <details>
           <summary>Next Reviews</summary>
           <p>Schedule data will be loaded from the learning API.</p>
           <table>
+            <caption>Upcoming review counts</caption>
             <thead>
               <tr>
-                <th>Category</th>
-                <th>Items</th>
+                <th scope="col">Category</th>
+                <th scope="col">Items</th>
               </tr>
             </thead>
             <tbody>

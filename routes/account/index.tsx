@@ -8,13 +8,14 @@ export default function AccountHome() {
       description="Authentication, profile, and security entry points."
     >
       <section>
-        <details open>
+        <details>
           <summary>Account Entry Points</summary>
           <table>
+            <caption>Account navigation</caption>
             <thead>
               <tr>
-                <th>Area</th>
-                <th>Purpose</th>
+                <th scope="col">Area</th>
+                <th scope="col">Purpose</th>
               </tr>
             </thead>
             <tbody>

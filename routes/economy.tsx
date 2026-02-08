@@ -8,13 +8,14 @@ export default function EconomyPage() {
       description="Token wallet, rewards, and ledger history."
     >
       <section>
-        <details open>
+        <details>
           <summary>Economy Overview</summary>
           <table>
+            <caption>Economy sections</caption>
             <thead>
               <tr>
-                <th>Area</th>
-                <th>Details</th>
+                <th scope="col">Area</th>
+                <th scope="col">Details</th>
               </tr>
             </thead>
             <tbody>

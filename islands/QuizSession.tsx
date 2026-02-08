@@ -162,13 +162,13 @@ export default function QuizSession() {
   };
 
   const renderToolbar = () => (
-    <details open>
+    <details>
       <summary>Controls</summary>
       <section>
         <header>
           <p>Mode</p>
           <nav>
-            <ul>
+            <menu>
               <li>
                 <button
                   type="button"
@@ -196,7 +196,7 @@ export default function QuizSession() {
                   Context
                 </button>
               </li>
-            </ul>
+            </menu>
           </nav>
         </header>
         <fieldset>
@@ -264,7 +264,7 @@ export default function QuizSession() {
     return (
       <section>
         {renderToolbar()}
-        <details open>
+        <details>
           <summary>Session Status</summary>
           <h2>Loading Quiz</h2>
           <p>Fetching the latest quiz from the learning API.</p>
@@ -277,7 +277,7 @@ export default function QuizSession() {
     return (
       <section>
         {renderToolbar()}
-        <details open>
+        <details>
           <summary>Session Status</summary>
           <h2>Quiz Error</h2>
           <p>{errorMessage.value}</p>
@@ -293,7 +293,7 @@ export default function QuizSession() {
     return (
       <section>
         {renderToolbar()}
-        <details open>
+        <details>
           <summary>Session Status</summary>
           <h2>Session Complete</h2>
           <p>
@@ -314,7 +314,7 @@ export default function QuizSession() {
     return (
       <section>
         {renderToolbar()}
-        <details open>
+        <details>
           <summary>Question</summary>
           <header>
             <p>Context Quiz</p>
@@ -323,7 +323,7 @@ export default function QuizSession() {
           <h2>Fill the blank</h2>
           <p>{contextQuiz.value.blanked_text}</p>
           {contextOptions.length > 0 ? (
-            <ul>
+            <ol>
               {contextOptions.map((choice, choiceIndex) => {
                 const isSelected = choiceIndex === selectedIndex.value;
                 const isCorrectChoice =
@@ -351,15 +351,15 @@ export default function QuizSession() {
                   </li>
                 );
               })}
-            </ul>
+            </ol>
           ) : (
             <p>No options provided for this blank yet.</p>
           )}
           <p aria-live="polite">{feedback.value}</p>
         </details>
-        <details open>
+        <details>
           <summary>Actions</summary>
-          <ul>
+          <menu>
             {!isChecked ? (
               <li>
                 <button type="button" onClick={checkAnswer}>
@@ -378,7 +378,7 @@ export default function QuizSession() {
                 Regenerate
               </button>
             </li>
-          </ul>
+          </menu>
         </details>
       </section>
     );
@@ -391,7 +391,7 @@ export default function QuizSession() {
     return (
       <section>
         {renderToolbar()}
-        <details open>
+        <details>
           <summary>Session Status</summary>
           <h2>Quiz Data Missing</h2>
           <p>The API response did not include quiz content.</p>
@@ -406,7 +406,7 @@ export default function QuizSession() {
   return (
     <section>
       {renderToolbar()}
-      <details open>
+      <details>
         <summary>Question</summary>
         <header>
           <p>
@@ -415,7 +415,7 @@ export default function QuizSession() {
           <p>Score {correctCount.value}</p>
         </header>
         <h2>{item.question}</h2>
-        <ul>
+        <ol>
           {item.options.map((choice, choiceIndex) => {
             const isSelected = choiceIndex === selectedIndex.value;
             const isCorrectChoice = choice.is_correct;
@@ -445,12 +445,12 @@ export default function QuizSession() {
               </li>
             );
           })}
-        </ul>
+        </ol>
         <p aria-live="polite">{feedback.value}</p>
       </details>
-      <details open>
+      <details>
         <summary>Actions</summary>
-        <ul>
+        <menu>
           {!isChecked ? (
             <li>
               <button type="button" onClick={checkAnswer}>
@@ -467,7 +467,7 @@ export default function QuizSession() {
           <li>
             <a href="/learning">Back to Learning</a>
           </li>
-        </ul>
+        </menu>
       </details>
     </section>
   );

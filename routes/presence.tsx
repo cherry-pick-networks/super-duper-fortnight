@@ -8,13 +8,14 @@ export default function PresencePage() {
       description="Attendance views and safety monitoring."
     >
       <section>
-        <details open>
+        <details>
           <summary>Presence Overview</summary>
           <table>
+            <caption>Presence sections</caption>
             <thead>
               <tr>
-                <th>Area</th>
-                <th>Details</th>
+                <th scope="col">Area</th>
+                <th scope="col">Details</th>
               </tr>
             </thead>
             <tbody>

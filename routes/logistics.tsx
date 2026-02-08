@@ -8,13 +8,14 @@ export default function LogisticsPage() {
       description="Inventory snapshots and safety stock alerts."
     >
       <section>
-        <details open>
+        <details>
           <summary>Logistics Overview</summary>
           <table>
+            <caption>Logistics sections</caption>
             <thead>
               <tr>
-                <th>Area</th>
-                <th>Details</th>
+                <th scope="col">Area</th>
+                <th scope="col">Details</th>
               </tr>
             </thead>
             <tbody>

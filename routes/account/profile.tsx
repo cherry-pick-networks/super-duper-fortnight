@@ -8,13 +8,14 @@ export default function AccountProfile() {
       description="Profile details and role assignments will appear here."
     >
       <section>
-        <details open>
+        <details>
           <summary>Profile Areas</summary>
           <table>
+            <caption>Profile sections</caption>
             <thead>
               <tr>
-                <th>Area</th>
-                <th>Details</th>
+                <th scope="col">Area</th>
+                <th scope="col">Details</th>
               </tr>
             </thead>
             <tbody>

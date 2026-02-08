@@ -8,7 +8,7 @@ export default function AccountLogin() {
       description="Use your account credentials to access the platform."
     >
       <section>
-        <details open>
+        <details>
           <summary>Sign In</summary>
           <form>
             <fieldset>

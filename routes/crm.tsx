@@ -8,13 +8,14 @@ export default function CrmPage() {
       description="Contacts, notes, and relationship history."
     >
       <section>
-        <details open>
+        <details>
           <summary>CRM Overview</summary>
           <table>
+            <caption>CRM sections</caption>
             <thead>
               <tr>
-                <th>Area</th>
-                <th>Details</th>
+                <th scope="col">Area</th>
+                <th scope="col">Details</th>
               </tr>
             </thead>
             <tbody>
