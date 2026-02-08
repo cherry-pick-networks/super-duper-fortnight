@@ -11,6 +11,7 @@ const getStoredValue = (key: string, fallback = "") => {
 const getAuthHeaders = () => {
   const userId = getStoredValue("picker_user_id", DEFAULT_USER_ID);
   const licenseKey = getStoredValue("picker_license_key", "");
+  const accessToken = getStoredValue("picker_access_token", "");
 
   const headers: Record<string, string> = {};
   if (userId) {
@@ -18,6 +19,9 @@ const getAuthHeaders = () => {
   }
   if (licenseKey) {
     headers["X-License-Key"] = licenseKey;
+  }
+  if (accessToken) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
   }
   return headers;
 };

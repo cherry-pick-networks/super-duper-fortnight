@@ -1,4 +1,5 @@
 import PageShell from "../../components/ui/PageShell.tsx";
+import LoginForm from "../../islands/LoginForm.tsx";
 
 export default function AccountLogin() {
   return (
@@ -8,31 +9,7 @@ export default function AccountLogin() {
       description="Use your account credentials to access the platform."
     >
       <section>
-        <details>
-          <summary>Sign In</summary>
-          <form>
-            <fieldset>
-              <legend>Credentials</legend>
-              <label>
-                <strong>Email</strong>
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="you@example.com"
-                />
-              </label>
-              <label>
-                <strong>Password</strong>
-                <input
-                  name="password"
-                  type="password"
-                  placeholder="••••••••"
-                />
-              </label>
-              <button type="button">Sign In</button>
-            </fieldset>
-          </form>
-        </details>
+        <LoginForm />
       </section>
     </PageShell>
   );
