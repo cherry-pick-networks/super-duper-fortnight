@@ -258,45 +258,50 @@ export default function ReceptiveQuiz() {
           typeof skillContent === "object" &&
           "choices" in skillContent ? (
             <section>
-              <h3>Grammar</h3>
-              {Array.isArray(skillContent.leading_sentences) &&
-              skillContent.leading_sentences.length > 0 ? (
+              <fieldset>
+                <legend>Grammar Two-Choice</legend>
+                {Array.isArray(skillContent.leading_sentences) &&
+                skillContent.leading_sentences.length > 0 ? (
+                  <section>
+                    <p>Leading sentences</p>
+                    <ul>
+                      {skillContent.leading_sentences.map((sentence, sentenceIndex) => (
+                        <li key={`leading-${sentenceIndex}`}>{sentence}</li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
                 <section>
-                  <h4>Prompt</h4>
-                  <ul>
-                    {skillContent.leading_sentences.map((sentence, sentenceIndex) => (
-                      <li key={`leading-${sentenceIndex}`}>{sentence}</li>
-                    ))}
-                  </ul>
+                  <p>Sentence choices</p>
+                  <ol>
+                    {Array.isArray(skillContent.choices)
+                      ? skillContent.choices.slice(0, 2).map((choice, choiceIndex) => (
+                        <li key={`grammar-choice-${choiceIndex}`}>
+                          {choice.parts?.map((part, partIndex) =>
+                            part.is_bold ? (
+                              <strong key={`part-${partIndex}`}>{part.text}</strong>
+                            ) : (
+                              part.text
+                            ),
+                          )}
+                          {choice.is_correct ? <small> (Correct)</small> : null}
+                        </li>
+                      ))
+                      : null}
+                  </ol>
                 </section>
-              ) : null}
-              <ol>
-                {Array.isArray(skillContent.choices)
-                  ? skillContent.choices.map((choice, choiceIndex) => (
-                    <li key={`grammar-choice-${choiceIndex}`}>
-                      {choice.parts?.map((part, partIndex) =>
-                        part.is_bold ? (
-                          <strong key={`part-${partIndex}`}>{part.text}</strong>
-                        ) : (
-                          part.text
-                        ),
-                      )}
-                      {choice.is_correct ? <small> (Correct)</small> : null}
-                    </li>
-                  ))
-                  : null}
-              </ol>
-              {Array.isArray(skillContent.trailing_sentences) &&
-              skillContent.trailing_sentences.length > 0 ? (
-                <section>
-                  <h4>Notes</h4>
-                  <ul>
-                    {skillContent.trailing_sentences.map((sentence, sentenceIndex) => (
-                      <li key={`trailing-${sentenceIndex}`}>{sentence}</li>
-                    ))}
-                  </ul>
-                </section>
-              ) : null}
+                {Array.isArray(skillContent.trailing_sentences) &&
+                skillContent.trailing_sentences.length > 0 ? (
+                  <section>
+                    <p>Trailing sentences</p>
+                    <ul>
+                      {skillContent.trailing_sentences.map((sentence, sentenceIndex) => (
+                        <li key={`trailing-${sentenceIndex}`}>{sentence}</li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+              </fieldset>
             </section>
           ) : null}
 

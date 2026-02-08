@@ -1,0 +1,10 @@
+---
+description: Prefer enterprise-grade libraries when available
+alwaysApply: true
+---
+
+# Enterprise Library Preference
+
+- If an enterprise-grade library already provides the required feature, use it.
+- Avoid custom implementations when a mature library is available.
+- Apply this rule to both backend and frontend work.

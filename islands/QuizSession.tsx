@@ -955,7 +955,7 @@ export default function QuizSession() {
           </header>
           {Array.isArray(leadingSentences) && leadingSentences.length > 0 ? (
             <section>
-              <h2>Prompt</h2>
+              <p>Leading sentences</p>
               <ul>
                 {leadingSentences.map((sentence, sentenceIndex) => (
                   <li key={`${sentence}-${sentenceIndex}`}>{sentence}</li>
@@ -966,7 +966,7 @@ export default function QuizSession() {
           <fieldset>
             <legend>Choose the correct sentence</legend>
             <ol>
-              {choices.map((choice, choiceIndex) => {
+              {choices.slice(0, 2).map((choice, choiceIndex) => {
                 const isSelected = choiceIndex === selectedIndex.value;
                 const showCorrect =
                   isChecked && (choice.is_correct || isSelected);
@@ -1000,7 +1000,7 @@ export default function QuizSession() {
           </fieldset>
           {Array.isArray(trailingSentences) && trailingSentences.length > 0 ? (
             <section>
-              <h2>Notes</h2>
+              <p>Trailing sentences</p>
               <ul>
                 {trailingSentences.map((sentence, sentenceIndex) => (
                   <li key={`${sentence}-${sentenceIndex}`}>{sentence}</li>
