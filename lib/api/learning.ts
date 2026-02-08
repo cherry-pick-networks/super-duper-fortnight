@@ -1,4 +1,5 @@
 import { apiFetch } from "./client.ts";
+import type { SuneungSubjectKey, SuneungTaxonomy } from "./taxonomy.ts";
 
 export type QuizOption = {
   text: string;
@@ -37,37 +38,68 @@ export type PhonologySwipeContent = {
   is_match: boolean;
 };
 
+export type GrammarChoicePart = {
+  text: string;
+  is_bold?: boolean;
+};
+
+export type GrammarChoice = {
+  parts: GrammarChoicePart[];
+  is_correct: boolean;
+};
+
+export type GrammarQuizContent = {
+  leading_sentences: string[];
+  choices: GrammarChoice[];
+  trailing_sentences: string[];
+};
+
 export type QuizSkillContent =
   | ReadingContent
   | CalculationContent
   | LexisFourChoiceContent
   | LexisSwipeContent
-  | PhonologySwipeContent;
+  | PhonologySwipeContent
+  | GrammarQuizContent;
 
 export type LearningSkillType =
   | "reading"
   | "calculation"
   | "4_choice"
   | "swipe_2_choice"
-  | "swipe_true_false";
+  | "swipe_true_false"
+  | "grammar_two_choice";
+
+export type LearningQuizMeta = {
+  id?: string;
+  source?: string;
+  version?: string;
+};
+
+export type LearningQuizSystem = {
+  domain?: string;
+  target?: number;
+  atom_id?: number;
+  part_of_speech?: string;
+  difficulty?: string;
+  taxonomy?: SuneungTaxonomy;
+};
+
+export type LearningQuizSkill = {
+  type?: LearningSkillType;
+  content?: QuizSkillContent;
+};
 
 export type LearningQuizResponse = {
-  meta?: {
-    id?: string;
-    source?: string;
-    version?: string;
-  };
-  system?: {
-    domain?: string;
-    target?: number;
-    atom_id?: number;
-    part_of_speech?: string;
-    difficulty?: string;
-  };
-  skill?: {
-    type?: LearningSkillType;
-    content?: QuizSkillContent;
-  };
+  meta?: LearningQuizMeta;
+  system?: LearningQuizSystem;
+  skill?: LearningQuizSkill;
+};
+
+export type LearningQuizBundleResponse = {
+  meta?: LearningQuizMeta;
+  system?: LearningQuizSystem;
+  skills?: LearningQuizSkill[];
 };
 
 export type ContextBlank = {
@@ -117,11 +149,37 @@ export async function fetchDomainQuiz(
   return apiFetch<LearningQuizResponse>(`/learning/quiz/${domain}?${params}`);
 }
 
+export async function fetchGrammarQuiz(
+  difficulty = "beginner",
+  topic = "practice",
+  grammar = "present_simple",
+): Promise<LearningQuizResponse> {
+  const params = new URLSearchParams({ difficulty, topic, grammar });
+  return apiFetch<LearningQuizResponse>(`/learning/quiz/grammar?${params}`);
+}
+
 export async function fetchPhonologyQuiz(
   difficulty = "beginner",
 ): Promise<LearningQuizResponse> {
   const params = new URLSearchParams({ difficulty });
   return apiFetch<LearningQuizResponse>(`/learning/quiz/phonology?${params}`);
+}
+
+export type ComposedQuizRequest = {
+  subject_key: SuneungSubjectKey;
+  tools: LearningSkillType[];
+  difficulty?: string;
+  topic?: string;
+  grammar?: string;
+};
+
+export async function fetchComposedQuiz(
+  request: ComposedQuizRequest,
+): Promise<LearningQuizBundleResponse> {
+  return apiFetch<LearningQuizBundleResponse>("/learning/quiz/compose", {
+    method: "POST",
+    body: request,
+  });
 }
 
 export async function gradeQuiz(

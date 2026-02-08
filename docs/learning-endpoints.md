@@ -20,6 +20,8 @@ Base prefix: `/learning`
   - Response: quiz payload from media adapter (phonology component)
 - `GET /learning/quiz/pronunciation?difficulty=beginner`
   - Response: quiz payload from media adapter (phonology component)
+- `GET /learning/quiz/grammar?difficulty=beginner&topic=practice&grammar=present_simple`
+  - Response: grammar quiz payload (direct grammar component)
 - `GET /learning/quiz/{domain}?difficulty=beginner`
   - `domain` is mapped by backend to component type:
     - `text|reading|passage` -> text adapter
@@ -74,6 +76,76 @@ Source: `ideal-happiness/src/picker/learning/component/phonology.py`
 - `skill.content.syllables` (optional)
 - `skill.content.score` (optional)
 - `skill.content.is_match`
+
+### Grammar (two-choice)
+Source: `ideal-happiness/src/picker/learning/component/grammar.py`
+- `skill.type`: `grammar_two_choice`
+- `skill.content.leading_sentences[]`
+- `skill.content.choices[] { parts[] { text, is_bold }, is_correct }`
+- `skill.content.trailing_sentences[]`
+
+## Composed Quiz (Tool Bundle)
+Use this to request a quiz bundle composed by the backend based on subject and
+tool selection. The backend combines tool outputs into a single response.
+
+- `POST /learning/quiz/compose`
+  - Request:
+    ```json
+    {
+      "subject_key": "english",
+      "tools": ["reading", "grammar_two_choice", "swipe_true_false"],
+      "difficulty": "intermediate",
+      "topic": "office",
+      "grammar": "present_simple"
+    }
+    ```
+  - Response:
+    ```json
+    {
+      "meta": { "version": "v1.0", "source": "learning_bundle_v1" },
+      "system": {
+        "domain": "grammar",
+        "difficulty": "intermediate",
+        "taxonomy": {
+          "exam": "suneung",
+          "domain": "humanities",
+          "field": "language",
+          "track": "common",
+          "subject_key": "english",
+          "subject_name": "English",
+          "nrf": { "domain_name": "Humanities", "code": null }
+        }
+      },
+      "skills": [
+        { "type": "reading", "content": { "text": "..." } },
+        {
+          "type": "grammar_two_choice",
+          "content": {
+            "leading_sentences": ["She ____ to the office every day."],
+            "choices": [
+              {
+                "parts": [
+                  { "text": "She " },
+                  { "text": "goes", "is_bold": true },
+                  { "text": " to the office every day." }
+                ],
+                "is_correct": true
+              },
+              {
+                "parts": [
+                  { "text": "She " },
+                  { "text": "go", "is_bold": true },
+                  { "text": " to the office every day." }
+                ],
+                "is_correct": false
+              }
+            ],
+            "trailing_sentences": ["Her schedule is consistent throughout the week."]
+          }
+        }
+      ]
+    }
+    ```
 
 ## Grading
 - `POST /learning/grade?user_id={id}&quiz_id={id}&score={0-100}`
