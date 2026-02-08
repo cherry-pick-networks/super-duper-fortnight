@@ -115,6 +115,28 @@ export type ContextQuizResponse = {
   blanks: ContextBlank[];
 };
 
+export type ContentSource = {
+  id: number;
+  source_uri: string;
+  parsed_at?: string | null;
+  source_body?: Record<string, unknown> | null;
+  dataset?: string | null;
+  split?: string | null;
+  example_id?: string | null;
+  curriculum?: string | null;
+  subject?: string | null;
+  target_level?: string | null;
+  tags: string[];
+};
+
+export type ContentAtom = {
+  id: number;
+  atom_type: string;
+  atom_body: Record<string, unknown>;
+  atom_hash: string;
+  source_id: number;
+};
+
 export async function fetchLexisQuiz(
   count = 1,
   mode: "4_choice" | "swipe" = "4_choice",
@@ -180,6 +202,46 @@ export async function fetchComposedQuiz(
     method: "POST",
     body: request,
   });
+}
+
+type SourceFilters = {
+  dataset?: string;
+  split?: string;
+  target_level?: string;
+};
+
+type AtomFilters = {
+  atom_type?: string;
+  source_id?: number;
+};
+
+const buildQueryParams = (filters?: Record<string, string | number>) => {
+  if (!filters) {
+    return "";
+  }
+  const params = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") {
+      return;
+    }
+    params.set(key, String(value));
+  });
+  const query = params.toString();
+  return query ? `?${query}` : "";
+};
+
+export async function fetchContentSources(
+  filters?: SourceFilters,
+): Promise<ContentSource[]> {
+  const query = buildQueryParams(filters);
+  return apiFetch<ContentSource[]>(`/learning/sources${query}`);
+}
+
+export async function fetchContentAtoms(
+  filters?: AtomFilters,
+): Promise<ContentAtom[]> {
+  const query = buildQueryParams(filters);
+  return apiFetch<ContentAtom[]>(`/learning/atoms${query}`);
 }
 
 export async function gradeQuiz(
