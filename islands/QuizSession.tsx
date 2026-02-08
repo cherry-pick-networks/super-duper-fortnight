@@ -2,25 +2,39 @@ import { useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 import {
   ContextQuizResponse,
+  fetchComposedQuiz,
   fetchContextQuiz,
   fetchDomainQuiz,
+  fetchGrammarQuiz,
   fetchLexisQuiz,
   fetchPhonologyQuiz,
   gradeQuiz,
+  LearningQuizBundleResponse,
   LearningQuizResponse,
+  LearningSkillType,
 } from "../lib/api/learning.ts";
 
 type QuizStep = "loading" | "answering" | "checked" | "finished" | "error";
 
 const sessionSize = 5;
 const fallbackUserId = 1;
+const bundleToolList: ReadonlyArray<LearningSkillType> = [
+  "reading",
+  "calculation",
+  "4_choice",
+  "swipe_2_choice",
+  "swipe_true_false",
+  "grammar_two_choice",
+];
 type QuizMode =
   | "lexis_4_choice"
   | "lexis_swipe"
   | "context"
   | "reading"
   | "calculation"
-  | "phonology";
+  | "phonology"
+  | "grammar"
+  | "bundle";
 
 export default function QuizSession() {
   const step = useSignal<QuizStep>("loading");
@@ -30,6 +44,7 @@ export default function QuizSession() {
   const feedback = useSignal("");
   const errorMessage = useSignal("");
   const quiz = useSignal<LearningQuizResponse | null>(null);
+  const bundleQuiz = useSignal<LearningQuizBundleResponse | null>(null);
   const contextQuiz = useSignal<ContextQuizResponse | null>(null);
   const mode = useSignal<QuizMode>("lexis_4_choice");
   const contextText = useSignal(
@@ -37,6 +52,10 @@ export default function QuizSession() {
   );
   const contextTargets = useSignal("practice,consistent");
   const difficulty = useSignal("beginner");
+  const bundleSubjectKey = useSignal("english");
+  const bundleTools = useSignal("reading,grammar_two_choice,swipe_true_false");
+  const bundleTopic = useSignal("office");
+  const bundleGrammar = useSignal("present_simple");
   const userId = useSignal(
     typeof globalThis === "undefined" || !("localStorage" in globalThis)
       ? "1"
@@ -51,10 +70,30 @@ export default function QuizSession() {
     if (mode.value === "context") {
       return 1;
     }
+    if (mode.value === "bundle") {
+      return bundleQuiz.value?.skills?.length ?? 1;
+    }
     if (mode.value === "lexis_4_choice" || mode.value === "lexis_swipe") {
       return sessionSize;
     }
     return 1;
+  };
+
+  const getActiveSkill = () => {
+    if (mode.value === "bundle") {
+      return bundleQuiz.value?.skills?.[index.value] ?? null;
+    }
+    return quiz.value?.skill ?? null;
+  };
+
+  const parseBundleTools = (value: string): LearningSkillType[] => {
+    const tokens = value
+      .split(",")
+      .map((token) => token.trim())
+      .filter(Boolean);
+    return tokens.filter((tool): tool is LearningSkillType =>
+      bundleToolList.includes(tool as LearningSkillType),
+    );
   };
 
   const loadQuiz = async () => {
@@ -73,30 +112,65 @@ export default function QuizSession() {
         );
         contextQuiz.value = response;
         quiz.value = null;
+        bundleQuiz.value = null;
       } else if (mode.value === "lexis_4_choice") {
         const response = await fetchLexisQuiz(1, "4_choice");
         quiz.value = response;
         contextQuiz.value = null;
+        bundleQuiz.value = null;
       } else if (mode.value === "lexis_swipe") {
         const response = await fetchLexisQuiz(1, "swipe");
         quiz.value = response;
         contextQuiz.value = null;
+        bundleQuiz.value = null;
       } else if (mode.value === "reading") {
         const response = await fetchDomainQuiz("text", difficulty.value);
         quiz.value = response;
         contextQuiz.value = null;
+        bundleQuiz.value = null;
       } else if (mode.value === "calculation") {
         const response = await fetchDomainQuiz("formula", difficulty.value);
         quiz.value = response;
         contextQuiz.value = null;
+        bundleQuiz.value = null;
       } else if (mode.value === "phonology") {
         const response = await fetchPhonologyQuiz(difficulty.value);
         quiz.value = response;
+        contextQuiz.value = null;
+        bundleQuiz.value = null;
+      } else if (mode.value === "grammar") {
+        const response = await fetchGrammarQuiz(
+          difficulty.value,
+          bundleTopic.value,
+          bundleGrammar.value,
+        );
+        quiz.value = response;
+        contextQuiz.value = null;
+        bundleQuiz.value = null;
+      } else if (mode.value === "bundle") {
+        const tools = parseBundleTools(bundleTools.value);
+        if (tools.length === 0) {
+          errorMessage.value = "Provide at least one valid tool.";
+          step.value = "error";
+          return;
+        }
+        const response = await fetchComposedQuiz({
+          subject_key: bundleSubjectKey.value,
+          tools,
+          difficulty: difficulty.value,
+          topic: bundleTopic.value,
+          grammar: bundleGrammar.value,
+        });
+        bundleQuiz.value = response;
+        index.value = 0;
+        selectedIndex.value = null;
+        quiz.value = null;
         contextQuiz.value = null;
       } else {
         const response = await fetchLexisQuiz(1, "4_choice");
         quiz.value = response;
         contextQuiz.value = null;
+        bundleQuiz.value = null;
       }
       step.value = "answering";
     } catch (error) {
@@ -137,27 +211,31 @@ export default function QuizSession() {
   };
 
   const checkAnswer = async () => {
+    const activeSkill = getActiveSkill();
+    const activeType = activeSkill?.type;
+    const activeContent = activeSkill?.content;
     const requiresSelection =
-      mode.value === "lexis_4_choice" ||
-      mode.value === "lexis_swipe" ||
       mode.value === "context" ||
-      mode.value === "phonology";
+      activeType === "4_choice" ||
+      activeType === "swipe_2_choice" ||
+      activeType === "swipe_true_false" ||
+      activeType === "grammar_two_choice";
     if (requiresSelection && selectedIndex.value === null) {
       feedback.value = "Select an answer before checking.";
       return;
     }
-    if (mode.value === "reading" || mode.value === "calculation") {
+
+    if (activeType === "reading" || activeType === "calculation") {
       feedback.value = "Marked as done.";
       step.value = "checked";
       return;
     }
-    if (mode.value === "phonology") {
-      const content = quiz.value?.skill?.content;
+    if (activeType === "swipe_true_false") {
       const isMatch =
-        typeof content === "object" &&
-        content !== null &&
-        "is_match" in content
-          ? Boolean(content.is_match)
+        typeof activeContent === "object" &&
+        activeContent !== null &&
+        "is_match" in activeContent
+          ? Boolean(activeContent.is_match)
           : null;
       if (typeof isMatch !== "boolean" || selectedIndex.value === null) {
         feedback.value = "Quiz content is missing.";
@@ -175,13 +253,35 @@ export default function QuizSession() {
       step.value = "checked";
       return;
     }
+    if (activeType === "grammar_two_choice") {
+      const choices =
+        typeof activeContent === "object" &&
+        activeContent !== null &&
+        "choices" in activeContent
+          ? activeContent.choices
+          : null;
+      if (!Array.isArray(choices)) {
+        feedback.value = "Quiz content is missing.";
+        return;
+      }
+      const correctIndex = choices.findIndex((choice) => choice.is_correct);
+      const isCorrect = selectedIndex.value === correctIndex;
+      if (isCorrect) {
+        correctCount.value += 1;
+        feedback.value = "Correct. Nice work.";
+      } else {
+        feedback.value = "Not quite. Review the hint and try again next time.";
+      }
+      step.value = "checked";
+      return;
+    }
     if (mode.value === "context") {
       feedback.value = "Context quizzes do not require grading yet.";
       step.value = "checked";
       return;
     }
 
-    const item = quiz.value?.skill?.content;
+    const item = activeContent;
     const options =
       typeof item === "object" && item !== null && "options" in item
         ? item.options
@@ -218,10 +318,7 @@ export default function QuizSession() {
       return;
     }
     const nextIndex = index.value + 1;
-    const maxCount =
-      mode.value === "lexis_4_choice" || mode.value === "lexis_swipe"
-        ? sessionSize
-        : 1;
+    const maxCount = totalCount();
     if (nextIndex >= maxCount) {
       step.value = "finished";
       return;
@@ -229,6 +326,10 @@ export default function QuizSession() {
     index.value = nextIndex;
     selectedIndex.value = null;
     feedback.value = "";
+    if (mode.value === "bundle") {
+      step.value = "answering";
+      return;
+    }
     void loadQuiz();
   };
 
@@ -302,6 +403,24 @@ export default function QuizSession() {
                   Phonology
                 </button>
               </li>
+              <li>
+                <button
+                  type="button"
+                  aria-pressed={mode.value === "grammar"}
+                  onClick={() => setMode("grammar")}
+                >
+                  Grammar
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  aria-pressed={mode.value === "bundle"}
+                  onClick={() => setMode("bundle")}
+                >
+                  Bundle
+                </button>
+              </li>
             </menu>
           </nav>
         </header>
@@ -342,6 +461,76 @@ export default function QuizSession() {
             Reload Quiz
           </button>
         </fieldset>
+        {mode.value === "grammar" ? (
+          <fieldset>
+            <legend>Grammar Settings</legend>
+            <label>
+              <strong>Topic</strong>
+              <input
+                value={bundleTopic.value}
+                onInput={(event) =>
+                  (bundleTopic.value =
+                    (event.target as HTMLInputElement).value)}
+              />
+            </label>
+            <label>
+              <strong>Grammar</strong>
+              <input
+                value={bundleGrammar.value}
+                onInput={(event) =>
+                  (bundleGrammar.value =
+                    (event.target as HTMLInputElement).value)}
+              />
+            </label>
+            <button type="button" onClick={loadQuiz}>
+              Generate Grammar Quiz
+            </button>
+          </fieldset>
+        ) : null}
+        {mode.value === "bundle" ? (
+          <fieldset>
+            <legend>Bundle Settings</legend>
+            <label>
+              <strong>Subject Key</strong>
+              <input
+                value={bundleSubjectKey.value}
+                onInput={(event) =>
+                  (bundleSubjectKey.value =
+                    (event.target as HTMLInputElement).value)}
+              />
+            </label>
+            <label>
+              <strong>Tools (comma-separated)</strong>
+              <input
+                value={bundleTools.value}
+                onInput={(event) =>
+                  (bundleTools.value =
+                    (event.target as HTMLInputElement).value)}
+              />
+            </label>
+            <label>
+              <strong>Topic</strong>
+              <input
+                value={bundleTopic.value}
+                onInput={(event) =>
+                  (bundleTopic.value =
+                    (event.target as HTMLInputElement).value)}
+              />
+            </label>
+            <label>
+              <strong>Grammar</strong>
+              <input
+                value={bundleGrammar.value}
+                onInput={(event) =>
+                  (bundleGrammar.value =
+                    (event.target as HTMLInputElement).value)}
+              />
+            </label>
+            <button type="button" onClick={loadQuiz}>
+              Generate Bundle
+            </button>
+          </fieldset>
+        ) : null}
         {mode.value === "context" ? (
           <fieldset>
             <legend>Context Quiz</legend>
@@ -496,11 +685,12 @@ export default function QuizSession() {
     );
   }
 
-  const content = quiz.value?.skill?.content;
-  const skillType = quiz.value?.skill?.type;
+  const activeSkill = getActiveSkill();
+  const content = activeSkill?.content;
+  const skillType = activeSkill?.type;
   const isChecked = step.value === "checked";
 
-  if (mode.value === "reading" && skillType === "reading") {
+  if (skillType === "reading") {
     const text =
       typeof content === "object" && content !== null && "text" in content
         ? String(content.text ?? "")
@@ -546,7 +736,7 @@ export default function QuizSession() {
     );
   }
 
-  if (mode.value === "calculation" && skillType === "calculation") {
+  if (skillType === "calculation") {
     const expression =
       typeof content === "object" && content !== null && "expression" in content
         ? String(content.expression ?? "")
@@ -610,7 +800,7 @@ export default function QuizSession() {
     );
   }
 
-  if (mode.value === "phonology" && skillType === "swipe_true_false") {
+  if (skillType === "swipe_true_false") {
     const isMatch =
       typeof content === "object" && content !== null && "is_match" in content
         ? Boolean(content.is_match)
@@ -720,6 +910,133 @@ export default function QuizSession() {
               <li>
                 <button type="button" onClick={nextQuestion}>
                   Finish
+                </button>
+              </li>
+            )}
+            <li>
+              <button type="button" onClick={restartQuiz}>
+                Start Over
+              </button>
+            </li>
+          </menu>
+        </details>
+      </section>
+    );
+  }
+
+  if (skillType === "grammar_two_choice") {
+    const leadingSentences =
+      typeof content === "object" &&
+      content !== null &&
+      "leading_sentences" in content
+        ? content.leading_sentences
+        : [];
+    const trailingSentences =
+      typeof content === "object" &&
+      content !== null &&
+      "trailing_sentences" in content
+        ? content.trailing_sentences
+        : [];
+    const choices =
+      typeof content === "object" && content !== null && "choices" in content
+        ? content.choices
+        : [];
+    if (!Array.isArray(choices)) {
+      return (
+        <section>
+          {renderToolbar()}
+          <details>
+            <summary>Session Status</summary>
+            <h2>Quiz Data Missing</h2>
+            <p>The API response did not include quiz content.</p>
+            <button type="button" onClick={loadQuiz}>
+              Reload
+            </button>
+          </details>
+        </section>
+      );
+    }
+    return (
+      <section>
+        {renderToolbar()}
+        <details>
+          <summary>Grammar</summary>
+          <header>
+            <p>
+              Question {index.value + 1} / {totalCount()}
+            </p>
+            <p>Score {correctCount.value}</p>
+          </header>
+          {Array.isArray(leadingSentences) && leadingSentences.length > 0 ? (
+            <section>
+              <h2>Prompt</h2>
+              <ul>
+                {leadingSentences.map((sentence, sentenceIndex) => (
+                  <li key={`${sentence}-${sentenceIndex}`}>{sentence}</li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+          <fieldset>
+            <legend>Choose the correct sentence</legend>
+            <ol>
+              {choices.map((choice, choiceIndex) => {
+                const isSelected = choiceIndex === selectedIndex.value;
+                const showCorrect =
+                  isChecked && (choice.is_correct || isSelected);
+                const statusLabel = showCorrect
+                  ? choice.is_correct
+                    ? "Correct answer"
+                    : "Your choice"
+                  : isSelected
+                  ? "Selected"
+                  : "";
+                return (
+                  <li key={`grammar-choice-${choiceIndex}`}>
+                    <button
+                      type="button"
+                      aria-pressed={isSelected}
+                      onClick={() => selectChoice(choiceIndex)}
+                    >
+                      {choice.parts?.map((part, partIndex) =>
+                        part.is_bold ? (
+                          <strong key={`part-${partIndex}`}>{part.text}</strong>
+                        ) : (
+                          part.text
+                        ),
+                      )}
+                      {statusLabel ? <small> ({statusLabel})</small> : null}
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          </fieldset>
+          {Array.isArray(trailingSentences) && trailingSentences.length > 0 ? (
+            <section>
+              <h2>Notes</h2>
+              <ul>
+                {trailingSentences.map((sentence, sentenceIndex) => (
+                  <li key={`${sentence}-${sentenceIndex}`}>{sentence}</li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+          <p aria-live="polite">{feedback.value}</p>
+        </details>
+        <details>
+          <summary>Actions</summary>
+          <menu>
+            {!isChecked ? (
+              <li>
+                <button type="button" onClick={checkAnswer}>
+                  Check Answer
+                </button>
+              </li>
+            ) : (
+              <li>
+                <button type="button" onClick={nextQuestion}>
+                  Next
                 </button>
               </li>
             )}
