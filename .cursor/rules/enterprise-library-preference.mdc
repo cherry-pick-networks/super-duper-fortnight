@@ -8,3 +8,11 @@ alwaysApply: true
 - If an enterprise-grade library already provides the required feature, use it.
 - Avoid custom implementations when a mature library is available.
 - Apply this rule to both backend and frontend work.
+
+## Evaluation Criteria
+
+- Security posture and vulnerability history are acceptable.
+- Active maintenance (recent releases and issue response).
+- Compatibility with existing stack and runtime constraints.
+- Documentation quality and API stability.
+- License allows commercial/enterprise usage.

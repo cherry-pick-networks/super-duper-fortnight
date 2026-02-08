@@ -30,3 +30,4 @@ This document defines the coding workflow after the docs phase.
 - No CSS framework usage.
 - Mobile-first rules are enforced for quiz only.
 - Prefer enterprise-grade libraries when they already provide the feature.
+- Evaluate candidate libraries on security, maintenance, compatibility, docs, and license.
