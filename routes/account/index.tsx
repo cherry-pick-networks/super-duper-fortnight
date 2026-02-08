@@ -7,15 +7,32 @@ export default function AccountHome() {
       tag="Account"
       description="Authentication, profile, and security entry points."
     >
-      <section class="section-grid">
-        <a class="card link-card" href="/account/login">
-          <h2>Login</h2>
-          <p class="muted">Sign in and manage authentication flows.</p>
-        </a>
-        <a class="card link-card" href="/account/profile">
-          <h2>Profile</h2>
-          <p class="muted">View identity details and permissions.</p>
-        </a>
+      <section>
+        <details open>
+          <summary>Account Entry Points</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <a href="/account/login">Login</a>
+                </td>
+                <td>Sign in and manage authentication flows.</td>
+              </tr>
+              <tr>
+                <td>
+                  <a href="/account/profile">Profile</a>
+                </td>
+                <td>View identity details and permissions.</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
       </section>
     </PageShell>
   );

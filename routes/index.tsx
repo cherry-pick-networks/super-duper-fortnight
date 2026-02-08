@@ -8,37 +8,68 @@ export default function Home() {
       tag="Picker Frontend"
       description="Desktop-first overview of product readiness and next steps."
     >
-      <section class="section-grid">
-        <div class="card">
-          <h2>Backend Connection</h2>
-          <p class="muted">
-            API base URL is <code>http://127.0.0.1:8000</code>. Use a proxy or
-            environment override in production.
-          </p>
-          <ul class="list">
+      <section>
+        <details open>
+          <summary>System Overview</summary>
+          <table>
+            <tbody>
+              <tr>
+                <th>API Base URL</th>
+                <td>
+                  <code>http://127.0.0.1:8000</code>
+                </td>
+              </tr>
+              <tr>
+                <th>Environment</th>
+                <td>Use a proxy or environment override in production.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Endpoints</h3>
+          <ul>
             <li>Login: POST /accounts/auth/login</li>
             <li>Profile: GET /accounts/auth/me</li>
             <li>Refresh: POST /accounts/auth/refresh</li>
           </ul>
-        </div>
-        <WalletConnect />
+        </details>
+        <details open>
+          <summary>Wallet</summary>
+          <WalletConnect />
+        </details>
       </section>
 
-      <section class="section-grid">
-        <a class="card link-card" href="/learning">
-          <h2>Learning</h2>
-          <p class="muted">
-            Mobile-first quiz flow with API wiring and grading hook.
-          </p>
-        </a>
-        <a class="card link-card" href="/account/profile">
-          <h2>Account</h2>
-          <p class="muted">Login and profile surfaces ready to wire.</p>
-        </a>
-        <a class="card link-card" href="/economy">
-          <h2>Economy</h2>
-          <p class="muted">Wallet, rewards, and ledger UI skeleton.</p>
-        </a>
+      <section>
+        <details open>
+          <summary>Quick Links</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Focus</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <a href="/learning">Learning</a>
+                </td>
+                <td>Mobile-first quiz flow and grading.</td>
+              </tr>
+              <tr>
+                <td>
+                  <a href="/account/profile">Account</a>
+                </td>
+                <td>Login and profile surfaces ready to wire.</td>
+              </tr>
+              <tr>
+                <td>
+                  <a href="/economy">Economy</a>
+                </td>
+                <td>Wallet, rewards, and ledger UI skeleton.</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
       </section>
     </PageShell>
   );

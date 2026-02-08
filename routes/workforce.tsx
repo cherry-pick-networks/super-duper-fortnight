@@ -7,15 +7,28 @@ export default function WorkforcePage() {
       tag="Workforce Domain"
       description="Time tracking, leave, and staff operations."
     >
-      <section class="section-grid">
-        <div class="card">
-          <h2>Time Tracking</h2>
-          <p class="muted">Clock-in/out and attendance alignment.</p>
-        </div>
-        <div class="card">
-          <h2>Leave Requests</h2>
-          <p class="muted">Pending approvals and leave balances.</p>
-        </div>
+      <section>
+        <details open>
+          <summary>Workforce Overview</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Time Tracking</td>
+                <td>Clock-in/out and attendance alignment.</td>
+              </tr>
+              <tr>
+                <td>Leave Requests</td>
+                <td>Pending approvals and leave balances.</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
       </section>
     </PageShell>
   );

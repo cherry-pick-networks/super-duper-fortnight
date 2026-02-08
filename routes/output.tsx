@@ -7,15 +7,28 @@ export default function OutputPage() {
       tag="Output Domain"
       description="Shared resource monitoring and print usage logs."
     >
-      <section class="section-grid">
-        <div class="card">
-          <h2>Print Jobs</h2>
-          <p class="muted">Queue status and job history.</p>
-        </div>
-        <div class="card">
-          <h2>Usage Logs</h2>
-          <p class="muted">Monthly summaries and device health.</p>
-        </div>
+      <section>
+        <details open>
+          <summary>Output Overview</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Print Jobs</td>
+                <td>Queue status and job history.</td>
+              </tr>
+              <tr>
+                <td>Usage Logs</td>
+                <td>Monthly summaries and device health.</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
       </section>
     </PageShell>
   );

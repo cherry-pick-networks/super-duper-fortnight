@@ -7,15 +7,28 @@ export default function EconomyPage() {
       tag="Economy Domain"
       description="Token wallet, rewards, and ledger history."
     >
-      <section class="section-grid">
-        <div class="card">
-          <h2>Wallet Balance</h2>
-          <p class="muted">Balance and recent reward activity.</p>
-        </div>
-        <div class="card">
-          <h2>Redemptions</h2>
-          <p class="muted">Rewards catalog and redemption history.</p>
-        </div>
+      <section>
+        <details open>
+          <summary>Economy Overview</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Wallet Balance</td>
+                <td>Balance and recent reward activity.</td>
+              </tr>
+              <tr>
+                <td>Redemptions</td>
+                <td>Rewards catalog and redemption history.</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
       </section>
     </PageShell>
   );

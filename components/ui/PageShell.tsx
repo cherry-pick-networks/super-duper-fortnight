@@ -27,28 +27,30 @@ export default function PageShell({
   children,
 }: PageShellProps) {
   return (
-    <div class="app-shell">
-      <aside class="sidebar">
-        <div class="brand">
-          <span class="brand-dot" />
-          <span>Picker</span>
-        </div>
-        <nav class="nav">
-          {navItems.map((item) => (
-            <a class="nav-link" href={item.href} key={item.href}>
-              {item.label}
-            </a>
-          ))}
+    <section>
+      <header>
+        <p>Picker</p>
+      </header>
+      <details>
+        <summary>Menu</summary>
+        <nav>
+          <ul>
+            {navItems.map((item) => (
+              <li key={item.href}>
+                <a href={item.href}>{item.label}</a>
+              </li>
+            ))}
+          </ul>
         </nav>
-      </aside>
-      <div class="shell-content">
-        <header class="shell-header">
-          {tag ? <span class="tag">{tag}</span> : null}
+      </details>
+      <main>
+        <header>
+          {tag ? <p>{tag}</p> : null}
           <h1>{title}</h1>
-          {description ? <p class="muted">{description}</p> : null}
+          {description ? <p>{description}</p> : null}
         </header>
-        <section class="shell-body">{children}</section>
-      </div>
-    </div>
+        <section>{children}</section>
+      </main>
+    </section>
   );
 }

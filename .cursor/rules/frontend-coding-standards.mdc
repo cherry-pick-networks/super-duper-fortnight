@@ -18,7 +18,12 @@ alwaysApply: true
 
 ## Conventions
 - Follow Google JavaScript Style Guide for TypeScript/JS.
-- Prefer No CSS Club principles for styling: keep CSS minimal, readable, and dependency-free.
+- Follow Only No CSS principles: no custom CSS usage.
+
+## HTML Authoring
+- Use semantic HTML tags whenever possible.
+- Avoid `div` and `span` unless no semantic alternative exists.
+- Prefer sectioning tags (`header`, `main`, `section`, `article`, `footer`) for layout.
 
 ## Architecture
 - Fresh: keep routes thin; place UI logic in components or islands.
@@ -41,7 +46,21 @@ alwaysApply: true
 - Never log or persist sensitive wallet data.
 
 ## CSS
-- Use vanilla CSS only; do not use Tailwind or other utility CSS frameworks.
+- Do not use CSS files, inline styles, or style attributes.
+- Do not use CSS frameworks (including Tailwind).
+- Avoid class-based styling; rely on semantic HTML structure only.
+
+## HTML Tags (Allowed)
+- Use only the 118 HTML5 tags listed below.
+- html, head, body, title, meta, link, base
+- header, footer, main, nav, aside, section, article, h1, h2, h3, h4, h5, h6, hgroup, address
+- p, hr, pre, blockquote, ol, ul, li, dl, dt, dd, figure, figcaption, div
+- a, em, strong, small, s, cite, q, dfn, abbr, ruby, rt, rp, data, time, code, var, samp, kbd, sub, sup, i, b, u, mark, bdi, bdo, span, br, wbr
+- img, iframe, embed, object, picture, source, video, audio, track, map, area
+- table, caption, colgroup, col, tbody, thead, tfoot, tr, td, th
+- form, label, input, button, select, datalist, optgroup, option, textarea, output, progress, meter, fieldset, legend, details, summary, dialog, search
+- script, noscript, template, slot, canvas, svg, math
+- ins, del, menu
 
 ## Examples
 ```tsx

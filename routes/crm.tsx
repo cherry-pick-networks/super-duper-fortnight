@@ -7,15 +7,28 @@ export default function CrmPage() {
       tag="CRM Domain"
       description="Contacts, notes, and relationship history."
     >
-      <section class="section-grid">
-        <div class="card">
-          <h2>Contacts</h2>
-          <p class="muted">Lead pipeline and contact status.</p>
-        </div>
-        <div class="card">
-          <h2>Notes</h2>
-          <p class="muted">Communication history and follow-ups.</p>
-        </div>
+      <section>
+        <details open>
+          <summary>CRM Overview</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Contacts</td>
+                <td>Lead pipeline and contact status.</td>
+              </tr>
+              <tr>
+                <td>Notes</td>
+                <td>Communication history and follow-ups.</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
       </section>
     </PageShell>
   );

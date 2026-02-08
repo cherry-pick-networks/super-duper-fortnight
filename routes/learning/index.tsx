@@ -7,27 +7,47 @@ export default function LearningHome() {
       tag="Learning Domain"
       description="Quiz and review flows are optimized for mobile-first execution."
     >
-      <section class="section-grid">
-        <a class="card link-card" href="/learning/quiz">
-          <h2>Start Quiz</h2>
-          <p class="muted">
-            Begin a short session and check how the quiz experience feels on
-            mobile.
-          </p>
-        </a>
-        <a class="card link-card" href="/learning/review">
-          <h2>Review Schedule</h2>
-          <p class="muted">
-            Review scheduling and memory state insights will be added next.
-          </p>
-        </a>
-        <a class="card link-card" href="/learning/progress">
-          <h2>Progress</h2>
-          <p class="muted">
-            Learner progress dashboards will live here for teachers and
-            students.
-          </p>
-        </a>
+      <section>
+        <details open>
+          <summary>Learning Sections</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Focus</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <a href="/learning/quiz">Start Quiz</a>
+                </td>
+                <td>
+                  Begin a short session and check how the quiz experience feels
+                  on mobile.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <a href="/learning/review">Review Schedule</a>
+                </td>
+                <td>
+                  Review scheduling and memory state insights will be added
+                  next.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <a href="/learning/progress">Progress</a>
+                </td>
+                <td>
+                  Learner progress dashboards will live here for teachers and
+                  students.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
       </section>
     </PageShell>
   );

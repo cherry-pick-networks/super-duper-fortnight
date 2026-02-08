@@ -7,15 +7,28 @@ export default function PresencePage() {
       tag="Presence Domain"
       description="Attendance views and safety monitoring."
     >
-      <section class="section-grid">
-        <div class="card">
-          <h2>Attendance Overview</h2>
-          <p class="muted">Student check-ins and status summaries.</p>
-        </div>
-        <div class="card">
-          <h2>Notifications</h2>
-          <p class="muted">Guardian alerts and timeline logs.</p>
-        </div>
+      <section>
+        <details open>
+          <summary>Presence Overview</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Attendance Overview</td>
+                <td>Student check-ins and status summaries.</td>
+              </tr>
+              <tr>
+                <td>Notifications</td>
+                <td>Guardian alerts and timeline logs.</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
       </section>
     </PageShell>
   );

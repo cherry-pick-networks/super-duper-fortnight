@@ -7,15 +7,28 @@ export default function CoursePage() {
       tag="Course Domain"
       description="Course list, enrollment, and details."
     >
-      <section class="section-grid">
-        <div class="card">
-          <h2>Active Courses</h2>
-          <p class="muted">Course list and filters will appear here.</p>
-        </div>
-        <div class="card">
-          <h2>Enrollment</h2>
-          <p class="muted">Enrollment actions and counts will be shown.</p>
-        </div>
+      <section>
+        <details open>
+          <summary>Course Overview</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Active Courses</td>
+                <td>Course list and filters will appear here.</td>
+              </tr>
+              <tr>
+                <td>Enrollment</td>
+                <td>Enrollment actions and counts will be shown.</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
       </section>
     </PageShell>
   );

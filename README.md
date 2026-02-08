@@ -15,6 +15,10 @@ WharfKit을 통해 블록체인 생태계(지갑 연결, 트랜잭션 서명)를
    ```bash
    deno task dev
    ```
+   - Vite 기반 개발 서버를 사용하려면:
+     ```bash
+     deno task dev:vite
+     ```
 3. 브라우저에서 `http://127.0.0.1:8001` 접속
 
 ## 백엔드 연동

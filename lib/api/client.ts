@@ -1,6 +1,26 @@
-const API_BASE_URL = "http://127.0.0.1:8000";
-const API_USER_ID = "1";
-const API_LICENSE_KEY = "";
+const API_BASE_URL = "/api";
+const DEFAULT_USER_ID = "1";
+
+const getStoredValue = (key: string, fallback = "") => {
+  if (typeof window === "undefined") {
+    return fallback;
+  }
+  return window.localStorage.getItem(key) ?? fallback;
+};
+
+const getAuthHeaders = () => {
+  const userId = getStoredValue("picker_user_id", DEFAULT_USER_ID);
+  const licenseKey = getStoredValue("picker_license_key", "");
+
+  const headers: Record<string, string> = {};
+  if (userId) {
+    headers["X-User-Id"] = userId;
+  }
+  if (licenseKey) {
+    headers["X-License-Key"] = licenseKey;
+  }
+  return headers;
+};
 
 type ApiOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -14,13 +34,9 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    "X-User-Id": API_USER_ID,
+    ...getAuthHeaders(),
     ...options.headers,
   };
-
-  if (API_LICENSE_KEY) {
-    headers["X-License-Key"] = API_LICENSE_KEY;
-  }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: options.method ?? "GET",

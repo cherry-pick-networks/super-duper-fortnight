@@ -7,15 +7,28 @@ export default function FinancePage() {
       tag="Finance Domain"
       description="Invoices, payments, and payroll summaries."
     >
-      <section class="section-grid">
-        <div class="card">
-          <h2>Invoices</h2>
-          <p class="muted">Open invoices and payment status.</p>
-        </div>
-        <div class="card">
-          <h2>Payroll</h2>
-          <p class="muted">Payroll cycles and payout summaries.</p>
-        </div>
+      <section>
+        <details open>
+          <summary>Finance Overview</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Invoices</td>
+                <td>Open invoices and payment status.</td>
+              </tr>
+              <tr>
+                <td>Payroll</td>
+                <td>Payroll cycles and payout summaries.</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
       </section>
     </PageShell>
   );

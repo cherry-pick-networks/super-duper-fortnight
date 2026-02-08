@@ -7,32 +7,32 @@ export default function AccountLogin() {
       tag="Account"
       description="Use your account credentials to access the platform."
     >
-      <section class="card">
-        <form class="form">
-          <label class="label" for="email">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            class="input"
-            placeholder="you@example.com"
-          />
-          <label class="label" for="password">
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            class="input"
-            placeholder="••••••••"
-          />
-          <button type="button" class="button">
-            Sign In
-          </button>
-        </form>
+      <section>
+        <details open>
+          <summary>Sign In</summary>
+          <form>
+            <fieldset>
+              <legend>Credentials</legend>
+              <label>
+                <strong>Email</strong>
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="you@example.com"
+                />
+              </label>
+              <label>
+                <strong>Password</strong>
+                <input
+                  name="password"
+                  type="password"
+                  placeholder="••••••••"
+                />
+              </label>
+              <button type="button">Sign In</button>
+            </fieldset>
+          </form>
+        </details>
       </section>
     </PageShell>
   );

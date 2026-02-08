@@ -1,7 +1,8 @@
 {
   "tasks": {
-    "start": "deno run -A npm:vite@6.1.0",
-    "dev": "deno run -A npm:vite@6.1.0",
+    "start": "deno run -A --watch main.tsx",
+    "dev": "deno run -A --watch main.tsx",
+    "dev:vite": "deno run -A npm:vite@6.1.0",
     "build": "deno run -A npm:vite@6.1.0 build",
     "preview": "deno serve -A _fresh/server.js --port 8001",
     "lint": "deno lint",
@@ -9,16 +10,20 @@
   },
   "imports": {
     "fresh": "jsr:@fresh/core@2.2.0",
+    "fresh/dev": "jsr:@fresh/core@2.2.0/dev",
     "@fresh/plugin-vite": "jsr:@fresh/plugin-vite@1.0.8",
     "vite": "npm:vite@6.1.0",
-    "preact": "https://esm.sh/preact@10.28.2",
-    "preact/": "https://esm.sh/preact@10.28.2/",
-    "preact/hooks": "https://esm.sh/preact@10.28.2/hooks",
-    "@preact/signals": "https://esm.sh/@preact/signals@2.5.1",
-    "@wharfkit/session": "https://esm.sh/@wharfkit/session@1.6.1"
+    "preact": "npm:preact@10.28.2",
+    "preact/hooks": "npm:preact@10.28.2/hooks",
+    "preact/jsx-runtime": "npm:preact@10.28.2/jsx-runtime",
+    "preact/jsx-dev-runtime": "npm:preact@10.28.2/jsx-dev-runtime",
+    "@preact/signals": "npm:@preact/signals@2.5.1",
+    "@wharfkit/session": "npm:@wharfkit/session@1.6.1"
   },
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "preact"
+    "jsxImportSource": "preact",
+    "lib": ["dom", "dom.iterable", "esnext", "deno.ns"],
+    "types": ["jsr:@fresh/core@2.2.0"]
   }
 }

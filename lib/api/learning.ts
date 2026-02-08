@@ -9,6 +9,9 @@ export type QuizSkillContent = {
   question: string;
   options: QuizOption[];
   index?: number;
+  mode?: string;
+  label?: string;
+  color?: string;
 };
 
 export type LearningQuizResponse = {
@@ -28,6 +31,19 @@ export type LearningQuizResponse = {
   };
 };
 
+export type ContextBlank = {
+  index: number;
+  answer: string;
+  original_idx: number;
+  options?: string[];
+};
+
+export type ContextQuizResponse = {
+  original_text: string;
+  blanked_text: string;
+  blanks: ContextBlank[];
+};
+
 export async function fetchLexisQuiz(
   count = 1,
   mode: "4_choice" | "swipe" = "4_choice",
@@ -37,6 +53,21 @@ export async function fetchLexisQuiz(
     mode,
   });
   return apiFetch<LearningQuizResponse>(`/learning/quiz/lexis?${params}`);
+}
+
+export async function fetchContextQuiz(
+  text: string,
+  targetWords: string[],
+  difficulty = "medium",
+): Promise<ContextQuizResponse> {
+  return apiFetch<ContextQuizResponse>("/learning/quiz/context", {
+    method: "POST",
+    body: {
+      text,
+      target_words: targetWords,
+      difficulty,
+    },
+  });
 }
 
 export async function gradeQuiz(

@@ -7,15 +7,28 @@ export default function MobilityPage() {
       tag="Mobility Domain"
       description="Route management, stops, and schedules."
     >
-      <section class="section-grid">
-        <div class="card">
-          <h2>Routes</h2>
-          <p class="muted">Active routes and stop sequences.</p>
-        </div>
-        <div class="card">
-          <h2>Schedules</h2>
-          <p class="muted">Timetables and service status.</p>
-        </div>
+      <section>
+        <details open>
+          <summary>Mobility Overview</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Routes</td>
+                <td>Active routes and stop sequences.</td>
+              </tr>
+              <tr>
+                <td>Schedules</td>
+                <td>Timetables and service status.</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
       </section>
     </PageShell>
   );

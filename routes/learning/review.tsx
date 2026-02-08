@@ -7,14 +7,33 @@ export default function LearningReview() {
       tag="Learning Review"
       description="Upcoming reviews and FSRS memory state insights."
     >
-      <section class="card">
-        <h2>Next Reviews</h2>
-        <p class="muted">Schedule data will be loaded from the learning API.</p>
-        <div class="placeholder-list">
-          <div class="placeholder-row">Vocabulary review - 12 items</div>
-          <div class="placeholder-row">Listening review - 6 items</div>
-          <div class="placeholder-row">Formula drills - 4 items</div>
-        </div>
+      <section>
+        <details open>
+          <summary>Next Reviews</summary>
+          <p>Schedule data will be loaded from the learning API.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Items</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Vocabulary review</td>
+                <td>12</td>
+              </tr>
+              <tr>
+                <td>Listening review</td>
+                <td>6</td>
+              </tr>
+              <tr>
+                <td>Formula drills</td>
+                <td>4</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
       </section>
     </PageShell>
   );

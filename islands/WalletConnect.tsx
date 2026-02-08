@@ -29,15 +29,15 @@ export default function WalletConnect() {
   };
 
   return (
-    <div class="card">
+    <section>
       <h2>지갑 연결</h2>
-      <p class="muted">{message.value}</p>
-      <button type="button" class="button" onClick={onConnect}>
+      <p>{message.value}</p>
+      <button type="button" onClick={onConnect}>
         WharfKit 준비하기
       </button>
-      <p class="status">
+      <p>
         상태: <strong>{statusLabels[status.value]}</strong>
       </p>
-    </div>
+    </section>
   );
 }
