@@ -7,8 +7,10 @@ description: Frontend documentation index
 This folder mirrors backend phase docs and adapts them for the web frontend.
 
 ## Docs
-- `p0-scope.md`: UI domains and ownership boundaries
-- `p1-user-flows.md`: Core user flows and screen intents
-- `p2-ui-architecture.md`: Component and layout structure
-- `p3-integration.md`: API and WharfKit integration points
+- `p0-domains.md`: UI domain list and ownership boundaries
+- `p1-use-cases.md`: Core UI use cases and policies
+- `p2-aggregates.md`: Component map and ownership rules
+- `p3-integration.md`: API, auth, and integration boundaries
+- `p4-schema.md`: Frontend data contract draft
+- `p5-migration.md`: Frontend migration direction
 - `dev-workflow.md`: Implementation workflow for frontend
