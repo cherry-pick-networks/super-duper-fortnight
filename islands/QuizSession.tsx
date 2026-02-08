@@ -61,11 +61,6 @@ export default function QuizSession() {
       ? "1"
       : globalThis.localStorage.getItem("picker_user_id") ?? "1",
   );
-  const licenseKey = useSignal(
-    typeof globalThis === "undefined" || !("localStorage" in globalThis)
-      ? ""
-      : globalThis.localStorage.getItem("picker_license_key") ?? "",
-  );
   const totalCount = () => {
     if (mode.value === "context") {
       return 1;
@@ -199,7 +194,6 @@ export default function QuizSession() {
       return;
     }
     globalThis.localStorage.setItem("picker_user_id", userId.value);
-    globalThis.localStorage.setItem("picker_license_key", licenseKey.value);
     void loadQuiz();
   };
 
@@ -432,14 +426,6 @@ export default function QuizSession() {
               value={userId.value}
               onInput={(event) =>
                 (userId.value = (event.target as HTMLInputElement).value)}
-            />
-          </label>
-          <label>
-            <strong>License Key</strong>
-            <input
-              value={licenseKey.value}
-              onInput={(event) =>
-                (licenseKey.value = (event.target as HTMLInputElement).value)}
             />
           </label>
           <button type="button" onClick={saveAuth}>
